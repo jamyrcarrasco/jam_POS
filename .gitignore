@@ -229,3 +229,24 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
+
+# Angular
+**/ClientApp/dist/
+**/ClientApp/.angular/
+**/ClientApp/node_modules/
+**/ClientApp/coverage/
+**/ClientApp/.nyc_output/
+**/ClientApp/.sass-cache/
+**/ClientApp/connect.lock
+**/ClientApp/libpeerconnection.log
+**/ClientApp/testem.log
+**/ClientApp/typings/
+**/ClientApp/.e2e/
+**/ClientApp/.tmp/
+**/ClientApp/.vscode/
+**/ClientApp/.idea/
+**/ClientApp/*.log
+**/ClientApp/*.tgz
+**/ClientApp/*.tar.gz
+**/ClientApp/.DS_Store
+**/ClientApp/Thumbs.db
