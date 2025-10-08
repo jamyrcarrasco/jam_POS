@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using jam_POS.Application.DTOs.Requests;
 using jam_POS.Application.DTOs.Responses;
+using jam_POS.Application.DTOs.Common;
 using jam_POS.Application.Services;
 
 namespace jam_POS.API.Controllers
@@ -21,18 +22,35 @@ namespace jam_POS.API.Controllers
 
         // GET: api/productos
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<ProductoResponse>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<ProductoResponse>>> GetProductos()
+        [ProducesResponseType(typeof(PagedResult<ProductoResponse>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<PagedResult<ProductoResponse>>> GetProductos([FromQuery] ProductFilterRequest filter)
         {
             try
             {
-                var productos = await _productoService.GetAllProductosAsync();
+                var productos = await _productoService.GetAllProductosAsync(filter);
                 return Ok(productos);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving productos");
                 return StatusCode(500, new ErrorResponse { Message = "An error occurred while retrieving productos" });
+            }
+        }
+
+        // GET: api/productos/categorias
+        [HttpGet("categorias")]
+        [ProducesResponseType(typeof(IEnumerable<string>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<string>>> GetCategorias()
+        {
+            try
+            {
+                var categorias = await _productoService.GetCategoriasAsync();
+                return Ok(categorias);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving categorias");
+                return StatusCode(500, new ErrorResponse { Message = "An error occurred while retrieving categorias" });
             }
         }
 

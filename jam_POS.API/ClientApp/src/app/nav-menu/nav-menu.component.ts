@@ -1,22 +1,79 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { Subject, takeUntil } from 'rxjs';
+import { AuthService } from '../core/services/auth.service';
+import { User } from '../core/models/user.model';
 
 @Component({
   selector: 'app-nav-menu',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [
+    CommonModule, 
+    RouterModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatSidenavModule,
+    MatListModule
+  ],
   templateUrl: './nav-menu.component.html',
-  styleUrls: ['./nav-menu.component.css']
+  styleUrls: ['./nav-menu.component.scss']
 })
-export class NavMenuComponent {
+export class NavMenuComponent implements OnInit, OnDestroy {
   isExpanded = false;
+  currentUser: User | null = null;
+  private destroy$ = new Subject<void>();
 
-  collapse() {
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.authService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(user => {
+        this.currentUser = user;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  collapse(): void {
     this.isExpanded = false;
   }
 
-  toggle() {
+  toggle(): void {
     this.isExpanded = !this.isExpanded;
+  }
+
+  logout(): void {
+    this.authService.logout();
+  }
+
+  isAuthenticated(): boolean {
+    return this.authService.isAuthenticated();
+  }
+
+  hasRole(role: string): boolean {
+    return this.authService.hasRole(role);
+  }
+
+  getUserDisplayName(): string {
+    if (this.currentUser) {
+      return `${this.currentUser.firstName} ${this.currentUser.lastName}`.trim() || this.currentUser.username;
+    }
+    return '';
   }
 }

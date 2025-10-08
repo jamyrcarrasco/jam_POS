@@ -9,7 +9,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { AuthService, LoginRequest } from '../services/auth.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { LoginRequest } from '../../../../core/models/user.model';
+import { APP_CONSTANTS } from '../../../../core/constants/app-constants.constant';
 
 @Component({
   selector: 'app-login',
@@ -26,7 +28,7 @@ import { AuthService, LoginRequest } from '../services/auth.service';
     MatSnackBarModule
   ],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
@@ -40,8 +42,14 @@ export class LoginComponent implements OnInit {
     private snackBar: MatSnackBar
   ) {
     this.loginForm = this.fb.group({
-      username: ['', [Validators.required, Validators.minLength(3)]],
-      password: ['', [Validators.required, Validators.minLength(3)]]
+      username: ['', [
+        Validators.required, 
+        Validators.minLength(APP_CONSTANTS.VALIDATION.USERNAME_MIN_LENGTH)
+      ]],
+      password: ['', [
+        Validators.required, 
+        Validators.minLength(APP_CONSTANTS.VALIDATION.PASSWORD_MIN_LENGTH)
+      ]]
     });
   }
 
@@ -64,7 +72,7 @@ export class LoginComponent implements OnInit {
       this.authService.login(loginRequest).subscribe({
         next: (response) => {
           this.isLoading = false;
-          this.snackBar.open('Login successful!', 'Close', {
+          this.snackBar.open('¡Inicio de sesión exitoso!', 'Cerrar', {
             duration: 3000,
             horizontalPosition: 'center',
             verticalPosition: 'top'
@@ -77,12 +85,12 @@ export class LoginComponent implements OnInit {
           this.isLoading = false;
           console.error('Login error:', error);
           
-          let errorMessage = 'Login failed. Please try again.';
+          let errorMessage = 'Error al iniciar sesión. Por favor, intente nuevamente.';
           if (error.error?.message) {
             errorMessage = error.error.message;
           }
           
-          this.snackBar.open(errorMessage, 'Close', {
+          this.snackBar.open(errorMessage, 'Cerrar', {
             duration: 5000,
             horizontalPosition: 'center',
             verticalPosition: 'top',
@@ -100,10 +108,11 @@ export class LoginComponent implements OnInit {
   getErrorMessage(fieldName: string): string {
     const field = this.loginForm.get(fieldName);
     if (field?.hasError('required')) {
-      return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
+      return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} es requerido`;
     }
     if (field?.hasError('minlength')) {
-      return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be at least 3 characters`;
+      const minLength = field.errors?.['minlength']?.requiredLength;
+      return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} debe tener al menos ${minLength} caracteres`;
     }
     return '';
   }

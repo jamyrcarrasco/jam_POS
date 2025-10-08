@@ -33,14 +33,52 @@ namespace jam_POS.Infrastructure.Data
             modelBuilder.Entity<Producto>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                
                 entity.Property(e => e.Nombre)
                     .IsRequired()
                     .HasMaxLength(200);
+                
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500);
+                
                 entity.Property(e => e.Precio)
                     .HasColumnType("decimal(18,2)")
                     .IsRequired();
+                
                 entity.Property(e => e.Stock)
                     .IsRequired();
+                
+                entity.Property(e => e.Categoria)
+                    .HasMaxLength(100);
+                
+                entity.Property(e => e.CodigoBarras)
+                    .HasMaxLength(50);
+                
+                entity.Property(e => e.ImagenUrl)
+                    .HasMaxLength(500);
+                
+                entity.Property(e => e.PrecioCompra)
+                    .HasColumnType("decimal(18,2)");
+                
+                entity.Property(e => e.MargenGanancia)
+                    .HasColumnType("decimal(5,2)");
+                
+                entity.Property(e => e.StockMinimo);
+                
+                entity.Property(e => e.Activo)
+                    .IsRequired()
+                    .HasDefaultValue(true);
+                
+                entity.Property(e => e.CreatedAt)
+                    .IsRequired();
+                
+                entity.Property(e => e.UpdatedAt)
+                    .IsRequired();
+                
+                // Indexes for better query performance
+                entity.HasIndex(e => e.Categoria);
+                entity.HasIndex(e => e.CodigoBarras);
+                entity.HasIndex(e => e.Activo);
             });
 
             // Configure Role entity

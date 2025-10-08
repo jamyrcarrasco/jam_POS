@@ -7,7 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
-import { AuthService, User } from '../services/auth.service';
+import { AuthService } from '../core/services/auth.service';
+import { User } from '../core/models/user.model';
 
 interface DashboardCard {
   title: string;
@@ -45,7 +46,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     // Check authentication
     if (!this.authService.isAuthenticated()) {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/auth/login']);
       return;
     }
 
@@ -62,7 +63,7 @@ export class DashboardComponent implements OnInit {
         title: 'Productos',
         description: 'Gestionar inventario de productos',
         icon: 'inventory',
-        route: '/productos',
+        route: '/products',
         color: 'primary',
         roles: ['SuperAdmin', 'Seller']
       },
