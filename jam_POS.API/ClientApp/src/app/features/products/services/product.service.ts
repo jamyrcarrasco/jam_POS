@@ -21,14 +21,14 @@ export class ProductService {
     if (filter) {
       if (filter.searchTerm) params = params.set('searchTerm', filter.searchTerm);
       if (filter.categoria) params = params.set('categoria', filter.categoria);
-      if (filter.precioMin !== undefined) params = params.set('precioMin', filter.precioMin.toString());
-      if (filter.precioMax !== undefined) params = params.set('precioMax', filter.precioMax.toString());
-      if (filter.stockBajo !== undefined) params = params.set('stockBajo', filter.stockBajo.toString());
-      if (filter.activo !== undefined) params = params.set('activo', filter.activo.toString());
+      if (filter.precioMin !== undefined && filter.precioMin !== null) params = params.set('precioMin', filter.precioMin.toString());
+      if (filter.precioMax !== undefined && filter.precioMax !== null) params = params.set('precioMax', filter.precioMax.toString());
+      if (filter.stockBajo !== undefined && filter.stockBajo !== null) params = params.set('stockBajo', filter.stockBajo.toString());
+      if (filter.activo !== undefined && filter.activo !== null) params = params.set('activo', filter.activo.toString());
       if (filter.pageNumber) params = params.set('pageNumber', filter.pageNumber.toString());
       if (filter.pageSize) params = params.set('pageSize', filter.pageSize.toString());
       if (filter.orderBy) params = params.set('orderBy', filter.orderBy);
-      if (filter.orderDescending !== undefined) params = params.set('orderDescending', filter.orderDescending.toString());
+      if (filter.orderDescending !== undefined && filter.orderDescending !== null) params = params.set('orderDescending', filter.orderDescending.toString());
     } else {
       // Default pagination
       params = params.set('pageNumber', '1');

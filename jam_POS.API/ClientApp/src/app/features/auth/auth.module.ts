@@ -37,6 +37,7 @@ const routes: Routes = [
     CommonModule,
     ReactiveFormsModule,
     RouterModule.forChild(routes),
+    LoginComponent, // Importar el componente standalone
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
