@@ -100,10 +100,10 @@ export class DashboardComponent implements OnInit {
         roles: ['SuperAdmin']
       },
       {
-        title: 'Configuración',
+        title: 'Configuraciones',
         description: 'Configurar sistema y parámetros',
         icon: 'settings',
-        route: '/configuracion',
+        route: '/configuraciones',
         color: 'warn',
         roles: ['SuperAdmin']
       }

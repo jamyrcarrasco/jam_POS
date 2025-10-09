@@ -24,6 +24,10 @@
         <mat-icon>assessment</mat-icon>
         Reportes
       </a>
+      <a mat-button [routerLink]="['/configuraciones']" routerLinkActive="active">
+        <mat-icon>settings</mat-icon>
+        Configuraciones
+      </a>
     </div>
 
     <!-- User Menu -->
@@ -99,6 +103,10 @@
       <a mat-list-item [routerLink]="['/fetch-data']" (click)="collapse()">
         <mat-icon matListItemIcon>assessment</mat-icon>
         <span matListItemTitle>Reportes</span>
+      </a>
+      <a mat-list-item [routerLink]="['/configuraciones']" (click)="collapse()">
+        <mat-icon matListItemIcon>settings</mat-icon>
+        <span matListItemTitle>Configuraciones</span>
       </a>
       <mat-divider></mat-divider>
       <a mat-list-item (click)="logout()">

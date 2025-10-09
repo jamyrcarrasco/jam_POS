@@ -21,11 +21,14 @@ namespace jam_POS.Core.Entities
         [Range(0, int.MaxValue, ErrorMessage = "El stock no puede ser negativo")]
         public int Stock { get; set; }
 
-        [StringLength(100)]
-        public string? Categoria { get; set; }
+        // Foreign Key
+        public int? CategoriaId { get; set; }
 
         [StringLength(50)]
         public string? CodigoBarras { get; set; }
+        
+        // Navigation property
+        public virtual Categoria? Categoria { get; set; }
 
         [StringLength(500)]
         public string? ImagenUrl { get; set; }

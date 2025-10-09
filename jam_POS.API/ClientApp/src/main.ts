@@ -31,19 +31,14 @@ const providers = [
         canActivate: [AuthGuard]
       },
       { 
+        path: 'configuraciones', 
+        loadChildren: () => import('./app/features/settings/settings.module').then(m => m.SettingsModule),
+        canActivate: [AuthGuard]
+      },
+      { 
         path: 'dashboard', 
         loadComponent: () => import('./app/dashboard/dashboard.component').then(m => m.DashboardComponent), 
         canActivate: [AuthGuard] 
-      },
-      { 
-        path: 'counter', 
-        loadComponent: () => import('./app/counter/counter.component').then(m => m.CounterComponent),
-        canActivate: [AuthGuard]
-      },
-      { 
-        path: 'fetch-data', 
-        loadComponent: () => import('./app/fetch-data/fetch-data.component').then(m => m.FetchDataComponent),
-        canActivate: [AuthGuard]
       },
       { path: '**', redirectTo: '/dashboard' }
     ]),

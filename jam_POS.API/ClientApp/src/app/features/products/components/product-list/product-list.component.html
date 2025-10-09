@@ -61,9 +61,9 @@
         <div class="form-row two-col">
           <mat-form-field appearance="outline">
             <mat-label>Categoría</mat-label>
-            <mat-select formControlName="categoria">
-              <mat-option value="">Ninguna</mat-option>
-              <mat-option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</mat-option>
+            <mat-select formControlName="categoriaId">
+              <mat-option [value]="null">Ninguna</mat-option>
+              <mat-option *ngFor="let cat of categorias" [value]="cat.id">{{ cat.nombre }}</mat-option>
             </mat-select>
           </mat-form-field>
 
@@ -241,10 +241,10 @@
           </ng-container>
 
           <!-- Categoría Column -->
-          <ng-container matColumnDef="categoria">
+          <ng-container matColumnDef="categoriaNombre">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Categoría </th>
             <td mat-cell *matCellDef="let product">
-              {{ product.categoria || '-' }}
+              {{ product.categoriaNombre || '-' }}
             </td>
           </ng-container>
 

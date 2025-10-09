@@ -1,0 +1,57 @@
+<div class="settings-container">
+  <!-- Breadcrumbs -->
+  <nav class="breadcrumb-nav" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/dashboard']">
+          <mat-icon>home</mat-icon>
+          Inicio
+        </a>
+      </li>
+      <li *ngFor="let crumb of breadcrumbs; let last = last" 
+          class="breadcrumb-item" 
+          [class.active]="last">
+        <a *ngIf="!last" [routerLink]="crumb.url">{{ crumb.label }}</a>
+        <span *ngIf="last">{{ crumb.label }}</span>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Main Settings View -->
+  <div class="settings-main">
+    <mat-card class="header-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="title-icon">settings</mat-icon>
+          <h1>Configuraciones del Sistema</h1>
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>Gestiona todas las configuraciones de tu sistema POS desde aquí</p>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="settings-grid">
+      <mat-card 
+        *ngFor="let card of settingCards" 
+        class="setting-card"
+        [class.disabled]="!card.available"
+        (click)="navigateTo(card.route, card.available)">
+        <mat-card-content>
+          <div class="card-icon" [style.background-color]="card.color">
+            <mat-icon>{{ card.icon }}</mat-icon>
+          </div>
+          <div class="card-info">
+            <h3>{{ card.title }}</h3>
+            <p>{{ card.description }}</p>
+            <mat-chip *ngIf="!card.available" class="coming-soon">Próximamente</mat-chip>
+          </div>
+          <div class="card-action">
+            <mat-icon *ngIf="card.available">arrow_forward</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
+

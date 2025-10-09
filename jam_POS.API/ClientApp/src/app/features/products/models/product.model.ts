@@ -5,7 +5,8 @@ export interface Product extends BaseEntity {
   descripcion?: string;
   precio: number;
   stock: number;
-  categoria?: string;
+  categoriaId?: number;
+  categoriaNombre?: string;
   codigoBarras?: string;
   imagenUrl?: string;
   precioCompra?: number;

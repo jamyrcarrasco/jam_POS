@@ -38,7 +38,7 @@ namespace jam_POS.Application.Services
 
             if (!string.IsNullOrWhiteSpace(filter.Categoria))
             {
-                query = query.Where(p => p.Categoria == filter.Categoria);
+                query = query.Where(p => p.CategoriaId.HasValue && p.Categoria!.Nombre == filter.Categoria);
             }
 
             if (filter.PrecioMin.HasValue)
@@ -69,6 +69,7 @@ namespace jam_POS.Application.Services
 
             // Apply pagination
             var items = await query
+                .Include(p => p.Categoria)
                 .Skip((filter.PageNumber - 1) * filter.PageSize)
                 .Take(filter.PageSize)
                 .ToListAsync();
@@ -88,7 +89,9 @@ namespace jam_POS.Application.Services
         {
             _logger.LogInformation("Retrieving producto with ID: {Id}", id);
 
-            var producto = await _context.Productos.FindAsync(id);
+            var producto = await _context.Productos
+                .Include(p => p.Categoria)
+                .FirstOrDefaultAsync(p => p.Id == id);
             
             if (producto == null)
             {
@@ -109,7 +112,7 @@ namespace jam_POS.Application.Services
                 Descripcion = request.Descripcion,
                 Precio = request.Precio,
                 Stock = request.Stock,
-                Categoria = request.Categoria,
+                CategoriaId = request.CategoriaId,
                 CodigoBarras = request.CodigoBarras,
                 ImagenUrl = request.ImagenUrl,
                 PrecioCompra = request.PrecioCompra,
@@ -144,7 +147,7 @@ namespace jam_POS.Application.Services
             producto.Descripcion = request.Descripcion;
             producto.Precio = request.Precio;
             producto.Stock = request.Stock;
-            producto.Categoria = request.Categoria;
+            producto.CategoriaId = request.CategoriaId;
             producto.CodigoBarras = request.CodigoBarras;
             producto.ImagenUrl = request.ImagenUrl;
             producto.PrecioCompra = request.PrecioCompra;
@@ -187,11 +190,10 @@ namespace jam_POS.Application.Services
 
         public async Task<IEnumerable<string>> GetCategoriasAsync()
         {
-            var categorias = await _context.Productos
-                .Where(p => p.Categoria != null)
-                .Select(p => p.Categoria!)
-                .Distinct()
-                .OrderBy(c => c)
+            var categorias = await _context.Set<Categoria>()
+                .Where(c => c.Activo)
+                .OrderBy(c => c.Nombre)
+                .Select(c => c.Nombre)
                 .ToListAsync();
 
             return categorias;
@@ -209,7 +211,7 @@ namespace jam_POS.Application.Services
                 "nombre" => p => p.Nombre,
                 "precio" => p => p.Precio,
                 "stock" => p => p.Stock,
-                "categoria" => p => p.Categoria ?? string.Empty,
+                "categoria" => p => p.Categoria != null ? p.Categoria.Nombre : string.Empty,
                 "createdat" => p => p.CreatedAt,
                 _ => p => p.Nombre
             };
@@ -226,7 +228,8 @@ namespace jam_POS.Application.Services
                 Descripcion = producto.Descripcion,
                 Precio = producto.Precio,
                 Stock = producto.Stock,
-                Categoria = producto.Categoria,
+                CategoriaId = producto.CategoriaId,
+                CategoriaNombre = producto.Categoria?.Nombre,
                 CodigoBarras = producto.CodigoBarras,
                 ImagenUrl = producto.ImagenUrl,
                 PrecioCompra = producto.PrecioCompra,

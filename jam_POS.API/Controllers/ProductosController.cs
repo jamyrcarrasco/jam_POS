@@ -32,8 +32,8 @@ namespace jam_POS.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving productos");
-                return StatusCode(500, new ErrorResponse { Message = "An error occurred while retrieving productos" });
+                _logger.LogError(ex, "Error recuperando productos");
+                return StatusCode(500, new ErrorResponse { Message = "Ocurrió un error al recuperar los productos" });
             }
         }
 
@@ -49,8 +49,8 @@ namespace jam_POS.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving categorias");
-                return StatusCode(500, new ErrorResponse { Message = "An error occurred while retrieving categorias" });
+                _logger.LogError(ex, "Error recuperando categorías");
+                return StatusCode(500, new ErrorResponse { Message = "Ocurrió un error al recuperar las categorías" });
             }
         }
 
@@ -66,15 +66,15 @@ namespace jam_POS.API.Controllers
                 
                 if (producto == null)
                 {
-                    return NotFound(new ErrorResponse { Message = $"Producto with ID {id} not found" });
+                    return NotFound(new ErrorResponse { Message = $"Producto con ID {id} no encontrado" });
                 }
 
                 return Ok(producto);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving producto with ID: {Id}", id);
-                return StatusCode(500, new ErrorResponse { Message = "An error occurred while retrieving the producto" });
+                _logger.LogError(ex, "Error recuperando producto con ID: {Id}", id);
+                return StatusCode(500, new ErrorResponse { Message = "Ocurrió un error al recuperar el producto" });
             }
         }
 
@@ -101,8 +101,8 @@ namespace jam_POS.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating producto with ID: {Id}", id);
-                return StatusCode(500, new ErrorResponse { Message = "An error occurred while updating the producto" });
+                _logger.LogError(ex, "Error actualizando producto con ID: {Id}", id);
+                return StatusCode(500, new ErrorResponse { Message = "Ocurrió un error al actualizar el producto" });
             }
         }
 
@@ -119,8 +119,8 @@ namespace jam_POS.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating producto");
-                return StatusCode(500, new ErrorResponse { Message = "An error occurred while creating the producto" });
+                _logger.LogError(ex, "Error creando producto");
+                return StatusCode(500, new ErrorResponse { Message = "Ocurrió un error al crear el producto" });
             }
         }
 
@@ -136,15 +136,15 @@ namespace jam_POS.API.Controllers
                 
                 if (!result)
                 {
-                    return NotFound(new ErrorResponse { Message = $"Producto with ID {id} not found" });
+                    return NotFound(new ErrorResponse { Message = $"Producto con ID {id} no encontrado" });
                 }
 
                 return NoContent();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting producto with ID: {Id}", id);
-                return StatusCode(500, new ErrorResponse { Message = "An error occurred while deleting the producto" });
+                _logger.LogError(ex, "Error eliminando producto con ID: {Id}", id);
+                return StatusCode(500, new ErrorResponse { Message = "Ocurrió un error al eliminar el producto" });
             }
         }
     }

@@ -20,6 +20,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { ProductService } from '../../services/product.service';
 import { Product, ProductFilter } from '../../models/product.model';
 import { PagedResult } from '../../../../core/models/pagination.model';
+import { CategoryService } from '../../../categories/services/category.service';
 
 @Component({
   selector: 'app-product-list',
@@ -52,11 +53,11 @@ export class ProductListComponent implements OnInit {
   pagedResult: PagedResult<Product> | null = null;
   productForm: FormGroup;
   filterForm: FormGroup;
-  categorias: string[] = [];
+  categorias: any[] = [];
   
   isEditing = false;
   editingId: number | null = null;
-  displayedColumns: string[] = ['nombre', 'descripcion', 'precio', 'stock', 'categoria', 'activo', 'acciones'];
+  displayedColumns: string[] = ['nombre', 'descripcion', 'precio', 'stock', 'categoriaNombre', 'activo', 'acciones'];
   loading = false;
   showFilters = false;
 
@@ -71,6 +72,7 @@ export class ProductListComponent implements OnInit {
 
   constructor(
     private productService: ProductService,
+    private categoryService: CategoryService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar
   ) {
@@ -79,7 +81,7 @@ export class ProductListComponent implements OnInit {
       descripcion: ['', [Validators.maxLength(500)]],
       precio: [0, [Validators.required, Validators.min(0.01)]],
       stock: [0, [Validators.required, Validators.min(0)]],
-      categoria: [''],
+      categoriaId: [null],
       codigoBarras: [''],
       imagenUrl: [''],
       precioCompra: [0, [Validators.min(0)]],
@@ -134,12 +136,12 @@ export class ProductListComponent implements OnInit {
   }
 
   loadCategorias(): void {
-    this.productService.getCategorias().subscribe({
+    this.categoryService.getActiveCategories().subscribe({
       next: (categorias) => {
         this.categorias = categorias;
       },
       error: (error) => {
-        console.error('Error loading categorias:', error);
+        console.error('Error al cargar categorías:', error);
       }
     });
   }
@@ -225,7 +227,7 @@ export class ProductListComponent implements OnInit {
       descripcion: product.descripcion,
       precio: product.precio,
       stock: product.stock,
-      categoria: product.categoria,
+      categoriaId: product.categoriaId,
       codigoBarras: product.codigoBarras,
       imagenUrl: product.imagenUrl,
       precioCompra: product.precioCompra,
