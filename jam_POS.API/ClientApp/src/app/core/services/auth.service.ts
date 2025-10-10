@@ -36,7 +36,7 @@ export class AuthService {
   logout(): void {
     this.clearAuthData();
     this.currentUserSubject.next(null);
-    this.router.navigate(['/auth/login']);
+    this.router.navigate(['/']);
   }
 
   getToken(): string | null {
@@ -89,11 +89,22 @@ export class AuthService {
       firstName: response.firstName,
       lastName: response.lastName
     }));
+    
+    // Store empresa info if available
+    if (response.empresa) {
+      localStorage.setItem('empresa', JSON.stringify(response.empresa));
+    }
   }
 
   private clearAuthData(): void {
     localStorage.removeItem(APP_CONSTANTS.STORAGE_KEYS.TOKEN);
     localStorage.removeItem(APP_CONSTANTS.STORAGE_KEYS.USER);
+    localStorage.removeItem('empresa');
+  }
+  
+  getEmpresa(): any {
+    const empresaStr = localStorage.getItem('empresa');
+    return empresaStr ? JSON.parse(empresaStr) : null;
   }
 
   private updateCurrentUser(response: LoginResponse): void {

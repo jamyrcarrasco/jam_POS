@@ -50,19 +50,27 @@ export class SettingsComponent {
       available: true
     },
     {
+      title: 'Roles y Permisos',
+      description: 'Administra roles y permisos del sistema',
+      icon: 'admin_panel_settings',
+      route: '/configuraciones/roles',
+      color: '#10B981',
+      available: true
+    },
+    {
       title: 'Usuarios',
-      description: 'Administra usuarios y permisos del sistema',
+      description: 'Administra usuarios del sistema',
       icon: 'people',
       route: '/configuraciones/usuarios',
-      color: '#10B981',
-      available: false
+      color: '#8B5CF6',
+      available: true
     },
     {
       title: 'Empresa',
       description: 'Configura la información de tu empresa',
       icon: 'business',
       route: '/configuraciones/empresa',
-      color: '#8B5CF6',
+      color: '#EC4899',
       available: false
     },
     {
@@ -86,7 +94,7 @@ export class SettingsComponent {
       description: 'Configura las opciones del punto de venta',
       icon: 'point_of_sale',
       route: '/configuraciones/pos',
-      color: '#14B8A6',
+      color: '#06B6D4',
       available: false
     }
   ];
@@ -107,6 +115,8 @@ export class SettingsComponent {
 
     if (url.includes('/categorias')) {
       this.breadcrumbs.push({ label: 'Categorías', url: '/configuraciones/categorias' });
+    } else if (url.includes('/roles')) {
+      this.breadcrumbs.push({ label: 'Roles y Permisos', url: '/configuraciones/roles' });
     } else if (url.includes('/usuarios')) {
       this.breadcrumbs.push({ label: 'Usuarios', url: '/configuraciones/usuarios' });
     } else if (url.includes('/empresa')) {

@@ -2,6 +2,8 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { SettingsComponent } from './components/settings/settings.component';
 import { CategoryListComponent } from '../categories/components/category-list/category-list.component';
+import { RoleListComponent } from '../roles/components/role-list/role-list.component';
+import { UserListComponent } from '../users/components/user-list/user-list.component';
 
 const routes: Routes = [
   {
@@ -11,6 +13,14 @@ const routes: Routes = [
   {
     path: 'categorias',
     component: CategoryListComponent
+  },
+  {
+    path: 'roles',
+    component: RoleListComponent
+  },
+  {
+    path: 'usuarios',
+    component: UserListComponent
   }
 ];
 
@@ -18,6 +28,8 @@ const routes: Routes = [
   imports: [
     SettingsComponent,
     CategoryListComponent,
+    RoleListComponent,
+    UserListComponent,
     RouterModule.forChild(routes)
   ]
 })

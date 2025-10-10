@@ -36,6 +36,7 @@ interface DashboardCard {
 })
 export class DashboardComponent implements OnInit {
   currentUser: User | null = null;
+  empresa: any = null;
   dashboardCards: DashboardCard[] = [];
 
   constructor(
@@ -52,6 +53,9 @@ export class DashboardComponent implements OnInit {
 
     // Get current user
     this.currentUser = this.authService.getCurrentUser();
+    
+    // Get empresa info
+    this.empresa = this.authService.getEmpresa();
     
     // Initialize dashboard cards based on user role
     this.initializeDashboardCards();

@@ -20,7 +20,10 @@ const providers = [
   { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
   importProvidersFrom(
     RouterModule.forRoot([
-      { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+      { 
+        path: '', 
+        loadComponent: () => import('./app/features/landing/components/landing/landing.component').then(m => m.LandingComponent)
+      },
       { 
         path: 'auth', 
         loadChildren: () => import('./app/features/auth/auth.module').then(m => m.AuthModule)

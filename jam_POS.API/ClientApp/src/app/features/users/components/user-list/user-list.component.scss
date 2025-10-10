@@ -1,0 +1,298 @@
+.users-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+// Breadcrumbs
+.breadcrumb-nav {
+  margin-bottom: 24px;
+  background: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  align-items: center;
+
+  .breadcrumb-item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+
+    &:not(:last-child)::after {
+      content: '/';
+      margin: 0 12px;
+      color: #9ca3af;
+    }
+
+    a {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #3b82f6;
+      text-decoration: none;
+      transition: color 0.2s;
+
+      &:hover {
+        color: #2563eb;
+        text-decoration: underline;
+      }
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    &.active {
+      color: #6b7280;
+      font-weight: 500;
+    }
+  }
+}
+
+// Header
+.header-card {
+  margin-bottom: 20px;
+
+  mat-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+
+    mat-card-title {
+      margin: 0;
+      flex: 1;
+
+      h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 500;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+  }
+}
+
+// Form Card
+.form-card {
+  margin-bottom: 20px;
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+
+    &.two-col {
+      mat-form-field {
+        flex: 1;
+      }
+    }
+  }
+
+  .full-width {
+    width: 100%;
+  }
+
+  mat-divider {
+    margin: 16px 0;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+  }
+}
+
+// Filters
+.filters-card {
+  margin-bottom: 20px;
+
+  .filters-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+
+    mat-form-field {
+      flex: 0 1 auto;
+      min-width: 200px;
+
+      &.search-field {
+        flex: 1;
+        min-width: 300px;
+      }
+    }
+  }
+}
+
+// Loading
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  min-height: 300px;
+}
+
+// Table
+.table-card {
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .users-table {
+    width: 100%;
+    min-width: 900px;
+
+    th {
+      font-weight: 600;
+      font-size: 14px;
+      padding: 16px 8px;
+    }
+
+    td {
+      padding: 16px 8px;
+    }
+
+    .user-avatar-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+
+        mat-icon {
+          font-size: 28px;
+          width: 28px;
+          height: 28px;
+        }
+      }
+
+      span {
+        font-weight: 500;
+      }
+    }
+
+    .role-chip {
+      background-color: #3b82f6;
+      color: white;
+      
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        margin-right: 4px;
+      }
+    }
+
+    .text-muted {
+      color: #6b7280;
+      font-size: 13px;
+    }
+
+    mat-chip {
+      &.active-chip {
+        background-color: #4caf50;
+        color: white;
+      }
+
+      &.inactive-chip {
+        background-color: #9e9e9e;
+        color: white;
+      }
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 40px !important;
+      color: #757575;
+      font-size: 16px;
+    }
+  }
+
+  mat-paginator {
+    border-top: 1px solid #e0e0e0;
+    margin-top: 16px;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .users-container {
+    padding: 10px;
+  }
+
+  .breadcrumb-nav {
+    padding: 10px 15px;
+  }
+
+  .header-card mat-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .header-actions {
+      margin-top: 10px;
+      width: 100%;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+
+  .form-card .form-row {
+    &.two-col {
+      flex-direction: column;
+    }
+  }
+
+  .filters-card .filters-row {
+    flex-direction: column;
+
+    mat-form-field {
+      width: 100%;
+      min-width: unset;
+    }
+  }
+
+  .table-card {
+    mat-card-content {
+      padding: 0;
+    }
+
+    .table-container {
+      margin: 0 -16px;
+    }
+  }
+}
+

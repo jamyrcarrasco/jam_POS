@@ -46,6 +46,9 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<int?>("EmpresaId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Icono")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
@@ -61,6 +64,8 @@ namespace jam_POS.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Activo");
+
+                    b.HasIndex("EmpresaId");
 
                     b.HasIndex("Nombre");
 
@@ -124,6 +129,400 @@ namespace jam_POS.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("jam_POS.Core.Entities.Empresa", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Activo")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Ciudad")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("CodigoPostal")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Direccion")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("FechaVencimientoPlan")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LogoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("NombreComercial")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Pais")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Plan")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasDefaultValue("BASICO");
+
+                    b.Property<string>("RUC")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Telefono")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Activo");
+
+                    b.HasIndex("RUC")
+                        .IsUnique();
+
+                    b.ToTable("Empresas");
+                });
+
+            modelBuilder.Entity("jam_POS.Core.Entities.Permission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Module")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Module");
+
+                    b.HasIndex("Name");
+
+                    b.ToTable("Permissions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Ver productos",
+                            IsSystem = true,
+                            Module = "PRODUCTOS",
+                            Name = "productos.view"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Crear productos",
+                            IsSystem = true,
+                            Module = "PRODUCTOS",
+                            Name = "productos.create"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Editar productos",
+                            IsSystem = true,
+                            Module = "PRODUCTOS",
+                            Name = "productos.edit"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Eliminar productos",
+                            IsSystem = true,
+                            Module = "PRODUCTOS",
+                            Name = "productos.delete"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Ver categorías",
+                            IsSystem = true,
+                            Module = "CATEGORIAS",
+                            Name = "categorias.view"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Crear categorías",
+                            IsSystem = true,
+                            Module = "CATEGORIAS",
+                            Name = "categorias.create"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Editar categorías",
+                            IsSystem = true,
+                            Module = "CATEGORIAS",
+                            Name = "categorias.edit"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Eliminar categorías",
+                            IsSystem = true,
+                            Module = "CATEGORIAS",
+                            Name = "categorias.delete"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Realizar ventas",
+                            IsSystem = true,
+                            Module = "VENTAS",
+                            Name = "ventas.create"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Ver ventas",
+                            IsSystem = true,
+                            Module = "VENTAS",
+                            Name = "ventas.view"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Cancelar ventas",
+                            IsSystem = true,
+                            Module = "VENTAS",
+                            Name = "ventas.cancel"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Hacer devoluciones",
+                            IsSystem = true,
+                            Module = "VENTAS",
+                            Name = "ventas.refund"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Ver clientes",
+                            IsSystem = true,
+                            Module = "CLIENTES",
+                            Name = "clientes.view"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Crear clientes",
+                            IsSystem = true,
+                            Module = "CLIENTES",
+                            Name = "clientes.create"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Editar clientes",
+                            IsSystem = true,
+                            Module = "CLIENTES",
+                            Name = "clientes.edit"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Eliminar clientes",
+                            IsSystem = true,
+                            Module = "CLIENTES",
+                            Name = "clientes.delete"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Reportes de ventas",
+                            IsSystem = true,
+                            Module = "REPORTES",
+                            Name = "reportes.ventas"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Reportes de inventario",
+                            IsSystem = true,
+                            Module = "REPORTES",
+                            Name = "reportes.inventario"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Reportes de clientes",
+                            IsSystem = true,
+                            Module = "REPORTES",
+                            Name = "reportes.clientes"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Reportes financieros",
+                            IsSystem = true,
+                            Module = "REPORTES",
+                            Name = "reportes.financiero"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Ver usuarios",
+                            IsSystem = true,
+                            Module = "USUARIOS",
+                            Name = "usuarios.view"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Crear usuarios",
+                            IsSystem = true,
+                            Module = "USUARIOS",
+                            Name = "usuarios.create"
+                        },
+                        new
+                        {
+                            Id = 23,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Editar usuarios",
+                            IsSystem = true,
+                            Module = "USUARIOS",
+                            Name = "usuarios.edit"
+                        },
+                        new
+                        {
+                            Id = 24,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Eliminar usuarios",
+                            IsSystem = true,
+                            Module = "USUARIOS",
+                            Name = "usuarios.delete"
+                        },
+                        new
+                        {
+                            Id = 25,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Cambiar rol de usuarios",
+                            IsSystem = true,
+                            Module = "USUARIOS",
+                            Name = "usuarios.change_role"
+                        },
+                        new
+                        {
+                            Id = 26,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Configuración general",
+                            IsSystem = true,
+                            Module = "CONFIGURACIONES",
+                            Name = "config.general"
+                        },
+                        new
+                        {
+                            Id = 27,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Configuración de empresa",
+                            IsSystem = true,
+                            Module = "CONFIGURACIONES",
+                            Name = "config.empresa"
+                        },
+                        new
+                        {
+                            Id = 28,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Configuración de impuestos",
+                            IsSystem = true,
+                            Module = "CONFIGURACIONES",
+                            Name = "config.impuestos"
+                        },
+                        new
+                        {
+                            Id = 29,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Configuración de punto de venta",
+                            IsSystem = true,
+                            Module = "CONFIGURACIONES",
+                            Name = "config.pos"
+                        },
+                        new
+                        {
+                            Id = 30,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Gestión de roles y permisos",
+                            IsSystem = true,
+                            Module = "CONFIGURACIONES",
+                            Name = "config.roles"
+                        });
+                });
+
             modelBuilder.Entity("jam_POS.Core.Entities.Producto", b =>
                 {
                     b.Property<int>("Id")
@@ -150,6 +549,9 @@ namespace jam_POS.Infrastructure.Migrations
                     b.Property<string>("Descripcion")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<int?>("EmpresaId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("ImagenUrl")
                         .HasMaxLength(500)
@@ -186,6 +588,8 @@ namespace jam_POS.Infrastructure.Migrations
 
                     b.HasIndex("CodigoBarras");
 
+                    b.HasIndex("EmpresaId");
+
                     b.ToTable("Productos");
                 });
 
@@ -197,17 +601,38 @@ namespace jam_POS.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Activo")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Activo");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Roles");
 
@@ -215,14 +640,296 @@ namespace jam_POS.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Description = "Super Administrator with full access",
-                            Name = "SuperAdmin"
+                            Activo = true,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Super Administrador con acceso total",
+                            IsSystem = true,
+                            Name = "SuperAdmin",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
                             Id = 2,
-                            Description = "Sales person with limited access",
-                            Name = "Seller"
+                            Activo = true,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Vendedor con acceso limitado",
+                            IsSystem = true,
+                            Name = "Seller",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        });
+                });
+
+            modelBuilder.Entity("jam_POS.Core.Entities.RolePermission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("GrantedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PermissionId");
+
+                    b.HasIndex("RoleId", "PermissionId")
+                        .IsUnique();
+
+                    b.ToTable("RolePermissions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 1,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 2,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 3,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 4,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 4,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 5,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 5,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 6,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 6,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 7,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 7,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 8,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 8,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 9,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 9,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 10,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 10,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 11,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 11,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 12,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 12,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 13,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 13,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 14,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 14,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 15,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 15,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 16,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 16,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 17,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 17,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 18,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 18,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 19,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 19,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 20,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 20,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 21,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 21,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 22,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 22,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 23,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 23,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 24,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 24,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 25,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 25,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 26,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 26,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 27,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 27,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 28,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 28,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 29,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 29,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 30,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 30,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 31,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 1,
+                            RoleId = 2
+                        },
+                        new
+                        {
+                            Id = 32,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 9,
+                            RoleId = 2
+                        },
+                        new
+                        {
+                            Id = 33,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 10,
+                            RoleId = 2
+                        },
+                        new
+                        {
+                            Id = 34,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 13,
+                            RoleId = 2
+                        },
+                        new
+                        {
+                            Id = 35,
+                            GrantedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PermissionId = 14,
+                            RoleId = 2
                         });
                 });
 
@@ -241,6 +948,9 @@ namespace jam_POS.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<int?>("EmpresaId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -275,6 +985,8 @@ namespace jam_POS.Infrastructure.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
+                    b.HasIndex("EmpresaId");
+
                     b.HasIndex("RoleId");
 
                     b.HasIndex("Username")
@@ -291,7 +1003,7 @@ namespace jam_POS.Infrastructure.Migrations
                             FirstName = "Super",
                             IsActive = true,
                             LastName = "Admin",
-                            PasswordHash = "$2a$11$5J6uCDIlHgZQ50Az/iXqGu/7TZHFgeFiuHCmOk7HBoc9Po4rPovTy",
+                            PasswordHash = "$2a$11$IKwRT4JxKf0lhKC7bTzq6eb7bRjMAOTdg0SP3RlwpSDXAW7uTeQO2",
                             RoleId = 1,
                             Username = "admin"
                         },
@@ -303,10 +1015,20 @@ namespace jam_POS.Infrastructure.Migrations
                             FirstName = "John",
                             IsActive = true,
                             LastName = "Seller",
-                            PasswordHash = "$2a$11$6eSZe1lk59AyUK5WTT6VdOJShimnMvyduI8/S6o5tR77KPbmhXx5a",
+                            PasswordHash = "$2a$11$XHFe.kT1wi1GQEmcI.Z1.eqLmZ4Q9c6R6sthRoQjtoQCiiZUqrFI6",
                             RoleId = 2,
                             Username = "seller"
                         });
+                });
+
+            modelBuilder.Entity("jam_POS.Core.Entities.Categoria", b =>
+                {
+                    b.HasOne("jam_POS.Core.Entities.Empresa", "Empresa")
+                        .WithMany("Categorias")
+                        .HasForeignKey("EmpresaId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Empresa");
                 });
 
             modelBuilder.Entity("jam_POS.Core.Entities.Producto", b =>
@@ -316,16 +1038,49 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasForeignKey("CategoriaId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("jam_POS.Core.Entities.Empresa", "Empresa")
+                        .WithMany("Productos")
+                        .HasForeignKey("EmpresaId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.Navigation("Categoria");
+
+                    b.Navigation("Empresa");
+                });
+
+            modelBuilder.Entity("jam_POS.Core.Entities.RolePermission", b =>
+                {
+                    b.HasOne("jam_POS.Core.Entities.Permission", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("jam_POS.Core.Entities.Role", "Role")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("jam_POS.Core.Entities.User", b =>
                 {
+                    b.HasOne("jam_POS.Core.Entities.Empresa", "Empresa")
+                        .WithMany("Users")
+                        .HasForeignKey("EmpresaId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("jam_POS.Core.Entities.Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Empresa");
 
                     b.Navigation("Role");
                 });
@@ -335,8 +1090,24 @@ namespace jam_POS.Infrastructure.Migrations
                     b.Navigation("Productos");
                 });
 
+            modelBuilder.Entity("jam_POS.Core.Entities.Empresa", b =>
+                {
+                    b.Navigation("Categorias");
+
+                    b.Navigation("Productos");
+
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("jam_POS.Core.Entities.Permission", b =>
+                {
+                    b.Navigation("RolePermissions");
+                });
+
             modelBuilder.Entity("jam_POS.Core.Entities.Role", b =>
                 {
+                    b.Navigation("RolePermissions");
+
                     b.Navigation("Users");
                 });
 #pragma warning restore 612, 618

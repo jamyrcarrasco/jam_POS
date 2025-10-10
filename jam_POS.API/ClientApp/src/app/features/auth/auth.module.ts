@@ -14,6 +14,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // Components
 import { LoginComponent } from './components/login/login.component';
+import { RegisterComponent } from './components/register/register.component';
 
 // Guards
 import { GuestGuard } from './guards/guest.guard';
@@ -22,6 +23,11 @@ const routes: Routes = [
   {
     path: 'login',
     component: LoginComponent,
+    canActivate: [GuestGuard]
+  },
+  {
+    path: 'register',
+    component: RegisterComponent,
     canActivate: [GuestGuard]
   },
   {
@@ -37,7 +43,8 @@ const routes: Routes = [
     CommonModule,
     ReactiveFormsModule,
     RouterModule.forChild(routes),
-    LoginComponent, // Importar el componente standalone
+    LoginComponent,
+    RegisterComponent,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,

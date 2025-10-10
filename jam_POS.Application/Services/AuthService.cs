@@ -33,6 +33,7 @@ namespace jam_POS.Application.Services
                 // Find user by username
                 var user = await _context.Users
                     .Include(u => u.Role)
+                    .Include(u => u.Empresa)
                     .FirstOrDefaultAsync(u => u.Username == request.Username && u.IsActive);
 
                 if (user == null)
@@ -58,6 +59,30 @@ namespace jam_POS.Application.Services
 
                 _logger.LogInformation("Login successful for user: {Username}", request.Username);
 
+                // Prepare empresa response if user has one
+                EmpresaResponse? empresaResponse = null;
+                if (user.Empresa != null)
+                {
+                    empresaResponse = new EmpresaResponse
+                    {
+                        Id = user.Empresa.Id,
+                        Nombre = user.Empresa.Nombre,
+                        NombreComercial = user.Empresa.NombreComercial,
+                        RUC = user.Empresa.RUC,
+                        Direccion = user.Empresa.Direccion,
+                        Telefono = user.Empresa.Telefono,
+                        Email = user.Empresa.Email,
+                        LogoUrl = user.Empresa.LogoUrl,
+                        Pais = user.Empresa.Pais,
+                        Ciudad = user.Empresa.Ciudad,
+                        CodigoPostal = user.Empresa.CodigoPostal,
+                        Plan = user.Empresa.Plan,
+                        FechaVencimientoPlan = user.Empresa.FechaVencimientoPlan,
+                        Activo = user.Empresa.Activo,
+                        CreatedAt = user.Empresa.CreatedAt
+                    };
+                }
+
                 return new LoginResponse
                 {
                     Token = token,
@@ -65,7 +90,8 @@ namespace jam_POS.Application.Services
                     Role = user.Role.Name,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
-                    ExpiresAt = expiresAt
+                    ExpiresAt = expiresAt,
+                    Empresa = empresaResponse
                 };
             }
             catch (UnauthorizedAccessException)

@@ -29,10 +29,12 @@ namespace jam_POS.Core.Entities
         
         public DateTime? LastLoginAt { get; set; }
         
-        // Foreign key
+        // Foreign keys
         public int RoleId { get; set; }
+        public int? EmpresaId { get; set; }
         
-        // Navigation property
+        // Navigation properties
         public virtual Role Role { get; set; } = null!;
+        public virtual Empresa? Empresa { get; set; }
     }
 }

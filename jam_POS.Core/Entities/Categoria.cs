@@ -25,8 +25,12 @@ namespace jam_POS.Core.Entities
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        // Navigation property
+        // Foreign Key
+        public int? EmpresaId { get; set; }
+
+        // Navigation properties
         public virtual ICollection<Producto> Productos { get; set; } = new List<Producto>();
+        public virtual Empresa? Empresa { get; set; }
     }
 }
 

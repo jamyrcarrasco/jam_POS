@@ -30,6 +30,7 @@ import { User } from '../core/models/user.model';
 export class NavMenuComponent implements OnInit, OnDestroy {
   isExpanded = false;
   currentUser: User | null = null;
+  empresa: any = null;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -43,6 +44,8 @@ export class NavMenuComponent implements OnInit, OnDestroy {
       .subscribe(user => {
         this.currentUser = user;
       });
+    
+    this.empresa = this.authService.getEmpresa();
   }
 
   ngOnDestroy(): void {

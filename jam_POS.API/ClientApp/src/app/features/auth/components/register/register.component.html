@@ -1,0 +1,168 @@
+<div class="register-container">
+  <div class="register-card-wrapper">
+    <mat-card class="register-card">
+      <!-- Header -->
+      <div class="register-header">
+        <div class="brand">
+          <mat-icon class="brand-icon">local_pharmacy</mat-icon>
+          <h1>jam<strong>POS</strong></h1>
+        </div>
+        <h2>Regístrate Gratis</h2>
+        <p>30 días de prueba sin necesidad de tarjeta de crédito</p>
+      </div>
+
+      <!-- Stepper Form -->
+      <mat-stepper linear #stepper>
+        <!-- Paso 1: Datos de la Empresa -->
+        <mat-step [stepControl]="empresaFormGroup">
+          <form [formGroup]="empresaFormGroup">
+            <ng-template matStepLabel>Datos de la Empresa</ng-template>
+            
+            <div class="step-content">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Nombre de la Empresa</mat-label>
+                <input matInput formControlName="nombreEmpresa" placeholder="Mi Tienda S.A." required>
+                <mat-icon matPrefix>business</mat-icon>
+                <mat-error *ngIf="empresaFormGroup.get('nombreEmpresa')?.hasError('required')">
+                  El nombre de la empresa es requerido
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Nombre Comercial</mat-label>
+                <input matInput formControlName="nombreComercial" placeholder="Mi Tienda" required>
+                <mat-icon matPrefix>store</mat-icon>
+                <mat-error *ngIf="empresaFormGroup.get('nombreComercial')?.hasError('required')">
+                  El nombre comercial es requerido
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>RUC / NIT / RFC</mat-label>
+                <input matInput formControlName="ruc" placeholder="20123456789" required>
+                <mat-icon matPrefix>badge</mat-icon>
+                <mat-error *ngIf="empresaFormGroup.get('ruc')?.hasError('required')">
+                  El RUC/NIT es requerido
+                </mat-error>
+              </mat-form-field>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Email de la Empresa</mat-label>
+                  <input matInput type="email" formControlName="emailEmpresa" placeholder="contacto@mitienda.com">
+                  <mat-icon matPrefix>email</mat-icon>
+                  <mat-error *ngIf="empresaFormGroup.get('emailEmpresa')?.hasError('email')">
+                    Email no válido
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Teléfono</mat-label>
+                  <input matInput formControlName="telefono" placeholder="+1 234 567 8900">
+                  <mat-icon matPrefix>phone</mat-icon>
+                </mat-form-field>
+              </div>
+
+              <div class="step-actions">
+                <button mat-raised-button color="primary" matStepperNext [disabled]="!empresaFormGroup.valid">
+                  Siguiente
+                  <mat-icon>arrow_forward</mat-icon>
+                </button>
+              </div>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- Paso 2: Datos del Administrador -->
+        <mat-step [stepControl]="adminFormGroup">
+          <form [formGroup]="adminFormGroup">
+            <ng-template matStepLabel>Datos del Administrador</ng-template>
+            
+            <div class="step-content">
+              <div class="form-row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Nombre</mat-label>
+                  <input matInput formControlName="adminFirstName" placeholder="Juan" required>
+                  <mat-icon matPrefix>person</mat-icon>
+                  <mat-error *ngIf="adminFormGroup.get('adminFirstName')?.hasError('required')">
+                    El nombre es requerido
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Apellido</mat-label>
+                  <input matInput formControlName="adminLastName" placeholder="Pérez" required>
+                  <mat-error *ngIf="adminFormGroup.get('adminLastName')?.hasError('required')">
+                    El apellido es requerido
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Email</mat-label>
+                <input matInput type="email" formControlName="adminEmail" placeholder="juan@mitienda.com" required>
+                <mat-icon matPrefix>email</mat-icon>
+                <mat-error *ngIf="adminFormGroup.get('adminEmail')?.hasError('required')">
+                  El email es requerido
+                </mat-error>
+                <mat-error *ngIf="adminFormGroup.get('adminEmail')?.hasError('email')">
+                  Email no válido
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Nombre de Usuario</mat-label>
+                <input matInput formControlName="adminUsername" placeholder="juanperez" required>
+                <mat-icon matPrefix>account_circle</mat-icon>
+                <mat-error *ngIf="adminFormGroup.get('adminUsername')?.hasError('required')">
+                  El nombre de usuario es requerido
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Contraseña</mat-label>
+                <input matInput type="password" formControlName="adminPassword" placeholder="Mínimo 6 caracteres" required>
+                <mat-icon matPrefix>lock</mat-icon>
+                <mat-error *ngIf="adminFormGroup.get('adminPassword')?.hasError('required')">
+                  La contraseña es requerida
+                </mat-error>
+                <mat-error *ngIf="adminFormGroup.get('adminPassword')?.hasError('minlength')">
+                  La contraseña debe tener al menos 6 caracteres
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Confirmar Contraseña</mat-label>
+                <input matInput type="password" formControlName="confirmPassword" placeholder="Repite tu contraseña" required>
+                <mat-icon matPrefix>lock</mat-icon>
+                <mat-error *ngIf="adminFormGroup.hasError('passwordMismatch')">
+                  Las contraseñas no coinciden
+                </mat-error>
+              </mat-form-field>
+
+              <div class="step-actions">
+                <button mat-button matStepperPrevious>
+                  <mat-icon>arrow_back</mat-icon>
+                  Atrás
+                </button>
+                <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="!adminFormGroup.valid || loading">
+                  <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+                  <mat-icon *ngIf="!loading">check_circle</mat-icon>
+                  {{ loading ? 'Registrando...' : 'Crear Cuenta' }}
+                </button>
+              </div>
+            </div>
+          </form>
+        </mat-step>
+      </mat-stepper>
+
+      <!-- Login Link -->
+      <div class="register-footer">
+        <p>¿Ya tienes una cuenta? 
+          <a (click)="navigateToLogin()" class="link">Inicia sesión aquí</a>
+        </p>
+      </div>
+    </mat-card>
+  </div>
+</div>
+

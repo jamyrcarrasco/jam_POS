@@ -3,7 +3,7 @@
     <!-- Logo/Brand -->
     <a class="navbar-brand" [routerLink]="['/dashboard']">
       <mat-icon class="brand-icon">local_pharmacy</mat-icon>
-      jam_POS
+      {{ empresa?.nombreComercial || 'jam_POS' }}
     </a>
 
     <!-- Desktop Navigation -->

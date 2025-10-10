@@ -8,5 +8,6 @@ namespace jam_POS.Application.DTOs.Responses
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public DateTime ExpiresAt { get; set; }
+        public EmpresaResponse? Empresa { get; set; }
     }
 }

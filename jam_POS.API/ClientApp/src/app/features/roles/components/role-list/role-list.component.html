@@ -1,0 +1,240 @@
+<div class="roles-container">
+  <!-- Breadcrumbs -->
+  <nav class="breadcrumb-nav" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/dashboard']">
+          <mat-icon>home</mat-icon>
+          Inicio
+        </a>
+      </li>
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/configuraciones']">
+          <mat-icon>settings</mat-icon>
+          Configuraciones
+        </a>
+      </li>
+      <li class="breadcrumb-item active">
+        <span>Roles y Permisos</span>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Header -->
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <h1>Gestión de Roles y Permisos</h1>
+      </mat-card-title>
+      <div class="header-actions">
+        <button mat-raised-button color="primary" (click)="toggleForm()">
+          <mat-icon>{{ showForm ? 'close' : 'add' }}</mat-icon>
+          {{ showForm ? 'Cancelar' : 'Nuevo Rol' }}
+        </button>
+      </div>
+    </mat-card-header>
+  </mat-card>
+
+  <!-- Role Form -->
+  <mat-card class="form-card" *ngIf="showForm">
+    <mat-card-header>
+      <mat-card-title>
+        {{ isEditing ? 'Editar Rol' : 'Nuevo Rol' }}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="roleForm" (ngSubmit)="onSubmit()">
+        <!-- Información Básica -->
+        <div class="form-section">
+          <h3>Información Básica</h3>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Nombre del Rol</mat-label>
+              <input matInput formControlName="name" placeholder="Ej: Gerente" required>
+              <mat-error *ngIf="roleForm.get('name')?.hasError('required')">
+                El nombre es requerido
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Descripción</mat-label>
+              <textarea matInput formControlName="description" placeholder="Descripción del rol" rows="2" required></textarea>
+              <mat-error *ngIf="roleForm.get('description')?.hasError('required')">
+                La descripción es requerida
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-slide-toggle formControlName="activo" color="primary">
+              Rol Activo
+            </mat-slide-toggle>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Permisos por Módulo -->
+        <div class="form-section permissions-section">
+          <h3>Permisos por Módulo</h3>
+          <p class="section-subtitle">Selecciona los permisos que tendrá este rol</p>
+
+          <mat-accordion class="permissions-accordion">
+            <mat-expansion-panel *ngFor="let module of getModules()">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon>{{ module === 'PRODUCTOS' ? 'inventory' : 
+                               module === 'CATEGORIAS' ? 'category' :
+                               module === 'VENTAS' ? 'point_of_sale' :
+                               module === 'CLIENTES' ? 'people' :
+                               module === 'REPORTES' ? 'analytics' :
+                               module === 'USUARIOS' ? 'admin_panel_settings' :
+                               'settings' }}</mat-icon>
+                  {{ module }}
+                  <span class="permission-count">
+                    ({{ getModuleSelectedCount(module) }}/{{ permissionsByModule[module].length }})
+                  </span>
+                </mat-panel-title>
+                <mat-panel-description>
+                  <button mat-button type="button" (click)="selectAllInModule(module); $event.stopPropagation()">
+                    Todos
+                  </button>
+                  <button mat-button type="button" (click)="deselectAllInModule(module); $event.stopPropagation()">
+                    Ninguno
+                  </button>
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+
+              <div class="permissions-list">
+                <mat-checkbox
+                  *ngFor="let permission of permissionsByModule[module]"
+                  [checked]="isPermissionSelected(permission.id)"
+                  (change)="togglePermission(permission.id)"
+                  class="permission-checkbox">
+                  <div class="permission-info">
+                    <span class="permission-name">{{ permission.description }}</span>
+                    <span class="permission-code">{{ permission.name }}</span>
+                  </div>
+                </mat-checkbox>
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
+
+          <div class="permissions-summary" *ngIf="selectedPermissions.size > 0">
+            <mat-chip-set>
+              <mat-chip>
+                <mat-icon>check_circle</mat-icon>
+                {{ selectedPermissions.size }} permisos seleccionados
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="form-actions">
+          <button mat-button type="button" (click)="cancelEdit()">Cancelar</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="!roleForm.valid || loading">
+            <mat-icon>{{ isEditing ? 'save' : 'add' }}</mat-icon>
+            {{ isEditing ? 'Actualizar' : 'Crear' }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Loading Spinner -->
+  <div class="loading-container" *ngIf="loading && !showForm">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <!-- Roles Table -->
+  <mat-card class="table-card" *ngIf="!loading">
+    <mat-card-content>
+      <div class="table-container">
+        <table mat-table [dataSource]="roles" class="roles-table">
+          
+          <!-- Nombre Column -->
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef> Nombre </th>
+            <td mat-cell *matCellDef="let role">
+              <div class="role-name-cell">
+                <strong>{{ role.name }}</strong>
+                <mat-chip *ngIf="role.isSystem" class="system-chip">Sistema</mat-chip>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Descripción Column -->
+          <ng-container matColumnDef="descripcion">
+            <th mat-header-cell *matHeaderCellDef> Descripción </th>
+            <td mat-cell *matCellDef="let role">
+              {{ role.description }}
+            </td>
+          </ng-container>
+
+          <!-- Usuarios Column -->
+          <ng-container matColumnDef="usuarios">
+            <th mat-header-cell *matHeaderCellDef> Usuarios </th>
+            <td mat-cell *matCellDef="let role">
+              <div class="count-cell">
+                <mat-icon>people</mat-icon>
+                <span>{{ role.usersCount }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Permisos Column -->
+          <ng-container matColumnDef="permisos">
+            <th mat-header-cell *matHeaderCellDef> Permisos </th>
+            <td mat-cell *matCellDef="let role">
+              <div class="count-cell">
+                <mat-icon>vpn_key</mat-icon>
+                <span>{{ role.permissionsCount }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Activo Column -->
+          <ng-container matColumnDef="activo">
+            <th mat-header-cell *matHeaderCellDef> Estado </th>
+            <td mat-cell *matCellDef="let role">
+              <mat-chip [class.active-chip]="role.activo" [class.inactive-chip]="!role.activo">
+                {{ role.activo ? 'Activo' : 'Inactivo' }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Acciones Column -->
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef> Acciones </th>
+            <td mat-cell *matCellDef="let role">
+              <button mat-icon-button color="primary" (click)="editRole(role)" matTooltip="Editar">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" 
+                      (click)="deleteRole(role.id)" 
+                      matTooltip="Eliminar"
+                      [disabled]="role.isSystem">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+          <!-- No data -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+              No se encontraron roles
+            </td>
+          </tr>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+
