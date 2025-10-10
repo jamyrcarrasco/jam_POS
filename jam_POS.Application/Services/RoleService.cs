@@ -68,23 +68,25 @@ namespace jam_POS.Application.Services
         {
             _logger.LogInformation("Creando nuevo rol: {Name}", request.Name);
 
-            // Validar que el nombre no exista
+            // Validar que el nombre no exista en el tenant actual
+            // El query filter ya se encarga de filtrar por tenant
             var existingRole = await _context.Set<Role>()
                 .FirstOrDefaultAsync(r => r.Name.ToLower() == request.Name.ToLower());
 
             if (existingRole != null)
             {
-                throw new InvalidOperationException($"Ya existe un rol con el nombre '{request.Name}'");
+                throw new InvalidOperationException($"Ya existe un rol con el nombre '{request.Name}' en tu empresa");
             }
 
             var role = new Role
             {
                 Name = request.Name,
                 Description = request.Description,
-                IsSystem = false,
+                IsSystem = false, // Los roles creados por empresas NUNCA son de sistema
                 Activo = request.Activo,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
+                // EmpresaId se asigna automáticamente en SaveChanges
             };
 
             _context.Set<Role>().Add(role);
@@ -115,19 +117,19 @@ namespace jam_POS.Application.Services
                 throw new KeyNotFoundException($"Rol con ID {id} no encontrado");
             }
 
-            // No permitir editar roles de sistema (nombre y permisos críticos)
-            if (role.IsSystem && role.Name != request.Name)
+            // No permitir editar roles de sistema
+            if (role.IsSystem)
             {
-                throw new InvalidOperationException("No se puede cambiar el nombre de un rol de sistema");
+                throw new InvalidOperationException("No se puede editar un rol de sistema");
             }
 
-            // Validar nombre único (excepto el mismo rol)
+            // Validar nombre único en el tenant actual (excepto el mismo rol)
             var existingRole = await _context.Set<Role>()
                 .FirstOrDefaultAsync(r => r.Name.ToLower() == request.Name.ToLower() && r.Id != id);
 
             if (existingRole != null)
             {
-                throw new InvalidOperationException($"Ya existe un rol con el nombre '{request.Name}'");
+                throw new InvalidOperationException($"Ya existe un rol con el nombre '{request.Name}' en tu empresa");
             }
 
             role.Name = request.Name;
@@ -199,10 +201,13 @@ namespace jam_POS.Application.Services
 
         public async Task<IEnumerable<RoleResponse>> GetActiveRolesAsync()
         {
+            // Obtener roles activos del sistema + roles activos del tenant
+            // El query filter ya se encarga de filtrar: IsSystem=true OR EmpresaId=CurrentTenant
             var roles = await _context.Set<Role>()
                 .Where(r => r.Activo)
                 .Include(r => r.Users)
-                .OrderBy(r => r.Name)
+                .OrderBy(r => r.IsSystem ? 0 : 1) // Roles de sistema primero
+                .ThenBy(r => r.Name)
                 .ToListAsync();
 
             return roles.Select(r => MapToResponse(r, false));

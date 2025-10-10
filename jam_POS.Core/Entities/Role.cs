@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using jam_POS.Core.Interfaces;
 
 namespace jam_POS.Core.Entities
 {
-    public class Role
+    public class Role : ITenantEntity
     {
         public int Id { get; set; }
 
@@ -21,9 +22,15 @@ namespace jam_POS.Core.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        // Foreign Key (para multi-tenant)
+        // Los roles de sistema (IsSystem=true) tienen EmpresaId=null (son globales)
+        // Los roles personalizados tienen EmpresaId asignado
+        public int? EmpresaId { get; set; }
         
         // Navigation properties
         public virtual ICollection<User> Users { get; set; } = new List<User>();
         public virtual ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
+        public virtual Empresa? Empresa { get; set; }
     }
 }

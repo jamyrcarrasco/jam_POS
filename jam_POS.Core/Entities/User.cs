@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using jam_POS.Core.Interfaces;
 
 namespace jam_POS.Core.Entities
 {
-    public class User
+    public class User : ITenantEntity
     {
         public int Id { get; set; }
         

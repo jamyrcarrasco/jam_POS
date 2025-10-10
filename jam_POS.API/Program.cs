@@ -6,6 +6,7 @@ using System.Text;
 using jam_POS.Infrastructure.Data;
 using jam_POS.Infrastructure.Services;
 using jam_POS.Application.Services;
+using jam_POS.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,9 @@ builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEmpresaService, EmpresaService>();
 builder.Services.AddScoped<JwtService>();
+
+// Multi-Tenant Services
+builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 
 // ============================================
 // 🔐 JWT Authentication
@@ -153,6 +157,10 @@ app.UseCors("AllowAngularApp");
 
 // Seguridad
 app.UseAuthentication();
+
+// Multi-Tenant Middleware (DEBE ir después de Authentication)
+app.UseTenantMiddleware();
+
 app.UseAuthorization();
 
 // Endpoints

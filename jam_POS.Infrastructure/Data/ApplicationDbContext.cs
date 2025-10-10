@@ -1,13 +1,25 @@
 using Microsoft.EntityFrameworkCore;
 using jam_POS.Core.Entities;
+using jam_POS.Core.Interfaces;
+using jam_POS.Infrastructure.Services;
 
 namespace jam_POS.Infrastructure.Data
 {
     public class ApplicationDbContext : DbContext
     {
+        private readonly ITenantProvider? _tenantProvider;
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
+        }
+
+        public ApplicationDbContext(
+            DbContextOptions<ApplicationDbContext> options,
+            ITenantProvider tenantProvider)
+            : base(options)
+        {
+            _tenantProvider = tenantProvider;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -248,9 +260,16 @@ namespace jam_POS.Infrastructure.Data
                 entity.Property(e => e.UpdatedAt)
                     .IsRequired();
                 
+                // Configure relationship with Empresa
+                entity.HasOne(r => r.Empresa)
+                    .WithMany()
+                    .HasForeignKey(r => r.EmpresaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
                 // Index for better query performance
-                entity.HasIndex(e => e.Name).IsUnique();
+                entity.HasIndex(e => e.Name);
                 entity.HasIndex(e => e.Activo);
+                entity.HasIndex(e => e.EmpresaId);
             });
 
             // Configure RolePermission entity
@@ -471,6 +490,29 @@ namespace jam_POS.Infrastructure.Data
             modelBuilder.Entity<RolePermission>().HasData(superAdminPermissions);
             modelBuilder.Entity<RolePermission>().HasData(sellerPermissions);
 
+            // ============================================
+            // 🔒 GLOBAL QUERY FILTERS (Multi-Tenant)
+            // ============================================
+            // Aplicar filtro global para todas las entidades ITenantEntity
+            // Esto asegura que TODAS las consultas solo devuelvan datos del tenant actual
+            
+            modelBuilder.Entity<Producto>().HasQueryFilter(e => 
+                e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
+            
+            modelBuilder.Entity<Categoria>().HasQueryFilter(e => 
+                e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
+            
+            modelBuilder.Entity<User>().HasQueryFilter(e => 
+                e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
+            
+            // Para roles: mostrar roles de sistema (IsSystem=true) + roles del tenant actual
+            modelBuilder.Entity<Role>().HasQueryFilter(e => 
+                e.IsSystem || e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
+            
+            // Para RolePermission: solo mostrar permisos de roles del tenant actual o de sistema
+            modelBuilder.Entity<RolePermission>().HasQueryFilter(rp => 
+                rp.Role.IsSystem || rp.Role.EmpresaId == null || rp.Role.EmpresaId == _tenantProvider!.GetTenantId());
+
             modelBuilder.Entity<User>().HasData(
                 new User 
                 { 
@@ -498,5 +540,55 @@ namespace jam_POS.Infrastructure.Data
                 }
             );
         }
+
+        // ============================================
+        // 🔒 OVERRIDE SAVECHANGES (Auto-asignar TenantId)
+        // ============================================
+        /// <summary>
+        /// Override de SaveChanges para automáticamente asignar el TenantId
+        /// a todas las entidades nuevas que implementen ITenantEntity
+        /// </summary>
+        public override int SaveChanges()
+        {
+            ApplyTenantId();
+            return base.SaveChanges();
+        }
+
+        /// <summary>
+        /// Override asíncrono de SaveChanges
+        /// </summary>
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            ApplyTenantId();
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        /// <summary>
+        /// Aplica el TenantId actual a todas las entidades que están siendo agregadas
+        /// </summary>
+        private void ApplyTenantId()
+        {
+            if (_tenantProvider == null) return;
+
+            var tenantId = _tenantProvider.GetTenantId();
+            
+            // Solo aplicar si hay un tenant activo
+            if (!tenantId.HasValue) return;
+
+            var entries = ChangeTracker.Entries<ITenantEntity>()
+                .Where(e => e.State == EntityState.Added && e.Entity.EmpresaId == null);
+
+            foreach (var entry in entries)
+            {
+                // Caso especial: Roles de sistema no deben tener EmpresaId
+                if (entry.Entity is Role role && role.IsSystem)
+                {
+                    continue; // No asignar EmpresaId a roles de sistema
+                }
+
+                entry.Entity.EmpresaId = tenantId.Value;
+            }
+        }
     }
 }
+

@@ -27,7 +27,7 @@ namespace jam_POS.Infrastructure.Services
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var claims = new[]
+            var claimsList = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
@@ -36,6 +36,15 @@ namespace jam_POS.Infrastructure.Services
                 new Claim("FirstName", user.FirstName),
                 new Claim("LastName", user.LastName)
             };
+
+            // Agregar TenantId (EmpresaId) si el usuario pertenece a una empresa
+            if (user.EmpresaId.HasValue)
+            {
+                claimsList.Add(new Claim("TenantId", user.EmpresaId.Value.ToString()));
+                claimsList.Add(new Claim("EmpresaId", user.EmpresaId.Value.ToString()));
+            }
+
+            var claims = claimsList.ToArray();
 
             var token = new JwtSecurityToken(
                 issuer: issuer,
