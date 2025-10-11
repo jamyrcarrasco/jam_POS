@@ -250,3 +250,25 @@ _Pvt_Extensions
 **/ClientApp/*.tar.gz
 **/ClientApp/.DS_Store
 **/ClientApp/Thumbs.db
+
+# ============================================
+# 🔐 SECRETOS Y CONFIGURACIÓN SENSIBLE
+# ============================================
+# Nunca subir archivos con datos sensibles
+appsettings.Production.json
+appsettings.Staging.json
+**/appsettings.*.local.json
+secrets.json
+*.secrets.json
+
+# User Secrets (por si acaso, aunque están fuera del proyecto)
+**/usersecrets/
+
+# Variables de entorno
+.env
+.env.local
+.env.*.local
+
+# API Keys y credenciales
+**/apikeys.json
+**/credentials.json
