@@ -14,9 +14,8 @@ namespace jam_POS.Core.Entities
         [StringLength(100)]
         public string NombreComercial { get; set; } = string.Empty;
 
-        [Required]
         [StringLength(50)]
-        public string RUC { get; set; } = string.Empty; // o NIT/RFC según país
+        public string? RNC { get; set; } // RNC (Registro Nacional de Contribuyentes) - Opcional
 
         [StringLength(200)]
         public string? Direccion { get; set; }

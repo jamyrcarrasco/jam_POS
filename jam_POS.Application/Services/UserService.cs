@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using jam_POS.Infrastructure.Data;
+using jam_POS.Infrastructure.Services;
 using jam_POS.Core.Entities;
 using jam_POS.Application.DTOs.Requests;
 using jam_POS.Application.DTOs.Responses;
@@ -13,11 +14,19 @@ namespace jam_POS.Application.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<UserService> _logger;
+        private readonly IEmailService _emailService;
+        private readonly ITenantProvider _tenantProvider;
 
-        public UserService(ApplicationDbContext context, ILogger<UserService> logger)
+        public UserService(
+            ApplicationDbContext context, 
+            ILogger<UserService> logger,
+            IEmailService emailService,
+            ITenantProvider tenantProvider)
         {
             _context = context;
             _logger = logger;
+            _emailService = emailService;
+            _tenantProvider = tenantProvider;
         }
 
         public async Task<PagedResult<UserResponse>> GetAllUsersAsync(UserFilterRequest filter)
@@ -128,6 +137,33 @@ namespace jam_POS.Application.Services
             await _context.SaveChangesAsync();
 
             _logger.LogInformation("Usuario creado exitosamente con ID: {Id}", user.Id);
+
+            // Enviar email con credenciales al nuevo usuario
+            var tenantId = _tenantProvider.GetTenantId();
+            if (tenantId.HasValue)
+            {
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        var empresa = await _context.Set<Empresa>().FindAsync(tenantId.Value);
+                        if (empresa != null)
+                        {
+                            await _emailService.SendNewUserEmailAsync(
+                                request.Email,
+                                request.Username,
+                                request.Password, // Enviar la contraseña temporal (solo en este email)
+                                empresa.NombreComercial
+                            );
+                            _logger.LogInformation("Email de nuevo usuario enviado a: {Email}", request.Email);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error al enviar email de nuevo usuario");
+                    }
+                });
+            }
 
             return (await GetUserByIdAsync(user.Id))!;
         }

@@ -13,9 +13,8 @@ namespace jam_POS.Application.DTOs.Requests
         [StringLength(100, ErrorMessage = "El nombre comercial no puede exceder 100 caracteres")]
         public string NombreComercial { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "El RUC/NIT es requerido")]
-        [StringLength(50, ErrorMessage = "El RUC/NIT no puede exceder 50 caracteres")]
-        public string RUC { get; set; } = string.Empty;
+        [StringLength(50, ErrorMessage = "El RNC no puede exceder 50 caracteres")]
+        public string? RNC { get; set; }
 
         [StringLength(100, ErrorMessage = "El email no puede exceder 100 caracteres")]
         [EmailAddress(ErrorMessage = "Email no válido")]

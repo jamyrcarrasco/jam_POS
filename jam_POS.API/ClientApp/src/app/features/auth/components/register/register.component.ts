@@ -46,7 +46,7 @@ export class RegisterComponent {
     this.empresaFormGroup = this.fb.group({
       nombreEmpresa: ['', [Validators.required, Validators.maxLength(200)]],
       nombreComercial: ['', [Validators.required, Validators.maxLength(100)]],
-      ruc: ['', [Validators.required, Validators.maxLength(50)]],
+      rnc: ['', [Validators.maxLength(50)]],
       emailEmpresa: ['', [Validators.email, Validators.maxLength(100)]],
       telefono: ['', [Validators.maxLength(50)]]
     });

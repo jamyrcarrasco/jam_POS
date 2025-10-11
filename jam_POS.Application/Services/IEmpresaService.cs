@@ -7,7 +7,7 @@ namespace jam_POS.Application.Services
     {
         Task<EmpresaResponse> RegisterEmpresaAsync(RegisterEmpresaRequest request);
         Task<EmpresaResponse?> GetEmpresaByIdAsync(int id);
-        Task<bool> RUCExistsAsync(string ruc);
+        Task<bool> RNCExistsAsync(string rnc);
     }
 }
 

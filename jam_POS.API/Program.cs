@@ -40,6 +40,9 @@ builder.Services.AddScoped<JwtService>();
 // Multi-Tenant Services
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 
+// Email Services
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 // ============================================
 // 🔐 JWT Authentication
 // ============================================

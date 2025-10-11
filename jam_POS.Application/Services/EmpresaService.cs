@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using jam_POS.Infrastructure.Data;
+using jam_POS.Infrastructure.Services;
 using jam_POS.Core.Entities;
 using jam_POS.Application.DTOs.Requests;
 using jam_POS.Application.DTOs.Responses;
@@ -11,21 +12,26 @@ namespace jam_POS.Application.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<EmpresaService> _logger;
+        private readonly IEmailService _emailService;
 
-        public EmpresaService(ApplicationDbContext context, ILogger<EmpresaService> logger)
+        public EmpresaService(
+            ApplicationDbContext context, 
+            ILogger<EmpresaService> logger,
+            IEmailService emailService)
         {
             _context = context;
             _logger = logger;
+            _emailService = emailService;
         }
 
         public async Task<EmpresaResponse> RegisterEmpresaAsync(RegisterEmpresaRequest request)
         {
             _logger.LogInformation("Registrando nueva empresa: {Nombre}", request.NombreEmpresa);
 
-            // Validar que el RUC no exista
-            if (await RUCExistsAsync(request.RUC))
+            // Validar que el RNC no exista (solo si se proporcionó)
+            if (!string.IsNullOrWhiteSpace(request.RNC) && await RNCExistsAsync(request.RNC))
             {
-                throw new InvalidOperationException($"Ya existe una empresa registrada con el RUC {request.RUC}");
+                throw new InvalidOperationException($"Ya existe una empresa registrada con el RNC {request.RNC}");
             }
 
             // Validar que el username no exista
@@ -51,7 +57,7 @@ namespace jam_POS.Application.Services
                 {
                     Nombre = request.NombreEmpresa,
                     NombreComercial = request.NombreComercial,
-                    RUC = request.RUC,
+                    RNC = request.RNC,
                     Email = request.EmailEmpresa,
                     Telefono = request.Telefono,
                     Plan = "BASICO",
@@ -86,6 +92,26 @@ namespace jam_POS.Application.Services
 
                 _logger.LogInformation("Empresa registrada exitosamente con ID: {Id}", empresa.Id);
 
+                // Enviar email de bienvenida de forma asíncrona (no bloquear el registro)
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _emailService.SendWelcomeEmailAsync(
+                            request.AdminEmail,
+                            request.NombreEmpresa,
+                            $"{request.AdminFirstName} {request.AdminLastName}",
+                            request.AdminUsername
+                        );
+                        _logger.LogInformation("Email de bienvenida enviado a: {Email}", request.AdminEmail);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error al enviar email de bienvenida");
+                        // No fallar el registro si el email falla
+                    }
+                });
+
                 return await GetEmpresaByIdAsync(empresa.Id) ?? throw new Exception("Error al recuperar la empresa creada");
             }
             catch
@@ -109,7 +135,7 @@ namespace jam_POS.Application.Services
                 Id = empresa.Id,
                 Nombre = empresa.Nombre,
                 NombreComercial = empresa.NombreComercial,
-                RUC = empresa.RUC,
+                RNC = empresa.RNC,
                 Direccion = empresa.Direccion,
                 Telefono = empresa.Telefono,
                 Email = empresa.Email,
@@ -126,9 +152,10 @@ namespace jam_POS.Application.Services
             };
         }
 
-        public async Task<bool> RUCExistsAsync(string ruc)
+        public async Task<bool> RNCExistsAsync(string rnc)
         {
-            return await _context.Set<Empresa>().AnyAsync(e => e.RUC.ToLower() == ruc.ToLower());
+            if (string.IsNullOrWhiteSpace(rnc)) return false;
+            return await _context.Set<Empresa>().AnyAsync(e => e.RNC != null && e.RNC.ToLower() == rnc.ToLower());
         }
     }
 }

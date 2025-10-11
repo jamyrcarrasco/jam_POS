@@ -58,8 +58,7 @@ namespace jam_POS.Infrastructure.Data
                     .IsRequired()
                     .HasMaxLength(100);
                 
-                entity.Property(e => e.RUC)
-                    .IsRequired()
+                entity.Property(e => e.RNC)
                     .HasMaxLength(50);
                 
                 entity.Property(e => e.Direccion)
@@ -99,7 +98,7 @@ namespace jam_POS.Infrastructure.Data
                     .IsRequired();
                 
                 // Indexes
-                entity.HasIndex(e => e.RUC).IsUnique();
+                entity.HasIndex(e => e.RNC);
                 entity.HasIndex(e => e.Activo);
             });
 

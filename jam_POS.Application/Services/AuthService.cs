@@ -68,7 +68,7 @@ namespace jam_POS.Application.Services
                         Id = user.Empresa.Id,
                         Nombre = user.Empresa.Nombre,
                         NombreComercial = user.Empresa.NombreComercial,
-                        RUC = user.Empresa.RUC,
+                        RNC = user.Empresa.RNC,
                         Direccion = user.Empresa.Direccion,
                         Telefono = user.Empresa.Telefono,
                         Email = user.Empresa.Email,

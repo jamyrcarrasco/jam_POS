@@ -38,12 +38,10 @@
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>RUC / NIT / RFC</mat-label>
-                <input matInput formControlName="ruc" placeholder="20123456789" required>
+                <mat-label>RNC (Opcional)</mat-label>
+                <input matInput formControlName="rnc" placeholder="Registro Nacional de Contribuyentes">
                 <mat-icon matPrefix>badge</mat-icon>
-                <mat-error *ngIf="empresaFormGroup.get('ruc')?.hasError('required')">
-                  El RUC/NIT es requerido
-                </mat-error>
+                <mat-hint>Puedes agregarlo después en configuraciones</mat-hint>
               </mat-form-field>
 
               <div class="form-row">

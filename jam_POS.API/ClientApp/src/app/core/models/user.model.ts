@@ -11,7 +11,7 @@ export interface Empresa {
   id: number;
   nombre: string;
   nombreComercial: string;
-  ruc: string;
+  rnc?: string;
   direccion?: string;
   telefono?: string;
   email?: string;
