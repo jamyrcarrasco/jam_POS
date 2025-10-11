@@ -74,6 +74,14 @@ export class SettingsComponent {
       available: true
     },
     {
+      title: 'Punto de Venta',
+      description: 'Configura las opciones del sistema POS',
+      icon: 'point_of_sale',
+      route: '/configuraciones/pos',
+      color: '#06B6D4',
+      available: true
+    },
+    {
       title: 'Empresa',
       description: 'Configura la información de tu empresa',
       icon: 'business',
@@ -123,10 +131,10 @@ export class SettingsComponent {
       this.breadcrumbs.push({ label: 'Empresa', url: '/configuraciones/empresa' });
     } else if (url.includes('/impuestos')) {
       this.breadcrumbs.push({ label: 'Impuestos', url: '/configuraciones/impuestos' });
-    } else if (url.includes('/general')) {
-      this.breadcrumbs.push({ label: 'General', url: '/configuraciones/general' });
     } else if (url.includes('/pos')) {
       this.breadcrumbs.push({ label: 'Punto de Venta', url: '/configuraciones/pos' });
+    } else if (url.includes('/general')) {
+      this.breadcrumbs.push({ label: 'General', url: '/configuraciones/general' });
     }
   }
 }

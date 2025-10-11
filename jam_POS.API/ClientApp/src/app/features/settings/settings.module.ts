@@ -5,6 +5,7 @@ import { CategoryListComponent } from '../categories/components/category-list/ca
 import { RoleListComponent } from '../roles/components/role-list/role-list.component';
 import { UserListComponent } from '../users/components/user-list/user-list.component';
 import { TaxListComponent } from '../taxes/components/tax-list/tax-list.component';
+import { POSConfigComponent } from '../pos-config/components/pos-config/pos-config.component';
 
 const routes: Routes = [
   {
@@ -26,6 +27,10 @@ const routes: Routes = [
   {
     path: 'impuestos',
     component: TaxListComponent
+  },
+  {
+    path: 'pos',
+    component: POSConfigComponent
   }
 ];
 
@@ -36,6 +41,7 @@ const routes: Routes = [
     RoleListComponent,
     UserListComponent,
     TaxListComponent,
+    POSConfigComponent,
     RouterModule.forChild(routes)
   ]
 })

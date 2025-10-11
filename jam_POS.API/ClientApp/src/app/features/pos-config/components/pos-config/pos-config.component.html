@@ -1,0 +1,298 @@
+<div class="pos-config-container">
+  <!-- Breadcrumbs -->
+  <nav class="breadcrumbs">
+    <a routerLink="/dashboard">Inicio</a>
+    <span class="separator">/</span>
+    <a routerLink="/configuraciones">Configuraciones</a>
+    <span class="separator">/</span>
+    <span class="current">Punto de Venta</span>
+  </nav>
+
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <h1>Configuración del Punto de Venta</h1>
+      <p class="subtitle">Configure las opciones principales del sistema POS</p>
+    </div>
+    <div class="header-actions">
+      <button mat-stroked-button (click)="resetForm()" [disabled]="loading">
+        <mat-icon>refresh</mat-icon>
+        Restablecer
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Configuration Card -->
+  <mat-card class="config-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>point_of_sale</mat-icon>
+        Configuración POS
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ isEditing ? 'Editar configuración existente' : 'Crear nueva configuración' }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-divider></mat-divider>
+
+    <mat-card-content>
+      <form [formGroup]="configForm" (ngSubmit)="onSubmit()">
+        <mat-tab-group mat-stretch-tabs="false" class="config-tabs">
+          
+          <!-- Tab: Recibos y Facturas -->
+          <mat-tab label="Recibos y Facturas">
+            <div class="tab-content">
+              <div class="section">
+                <h3>Numeración de Documentos</h3>
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Prefijo Recibos</mat-label>
+                    <input matInput formControlName="prefijoRecibo" placeholder="REC">
+                    <mat-icon matPrefix>receipt</mat-icon>
+                    <mat-error *ngIf="configForm.get('prefijoRecibo')?.hasError('required')">
+                      El prefijo es requerido
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Siguiente Número Recibo</mat-label>
+                    <input matInput type="number" formControlName="siguienteNumeroRecibo" placeholder="1">
+                    <mat-icon matPrefix>format_list_numbered</mat-icon>
+                  </mat-form-field>
+
+                  <button mat-stroked-button type="button" (click)="previewNumeroRecibo()" matTooltip="Ver próximo número">
+                    <mat-icon>visibility</mat-icon>
+                    Vista Previa
+                  </button>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Prefijo Facturas</mat-label>
+                    <input matInput formControlName="prefijoFactura" placeholder="FAC">
+                    <mat-icon matPrefix>description</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Siguiente Número Factura</mat-label>
+                    <input matInput type="number" formControlName="siguienteNumeroFactura" placeholder="1">
+                    <mat-icon matPrefix>format_list_numbered</mat-icon>
+                  </mat-form-field>
+
+                  <button mat-stroked-button type="button" (click)="previewNumeroFactura()" matTooltip="Ver próximo número">
+                    <mat-icon>visibility</mat-icon>
+                    Vista Previa
+                  </button>
+                </div>
+              </div>
+
+              <div class="section">
+                <h3>Configuración de Impresión</h3>
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Formato de Papel</mat-label>
+                    <mat-select formControlName="formatoPapel">
+                      <mat-option *ngFor="let formato of formatosPapel" [value]="formato.value">
+                        {{ formato.label }}
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>print</mat-icon>
+                  </mat-form-field>
+
+                  <div class="toggle-field">
+                    <mat-slide-toggle formControlName="incluirLogoRecibo" color="primary">
+                      Incluir logo en recibos
+                    </mat-slide-toggle>
+                  </div>
+
+                  <div class="toggle-field">
+                    <mat-slide-toggle formControlName="imprimirAutomaticamente" color="primary">
+                      Imprimir automáticamente
+                    </mat-slide-toggle>
+                  </div>
+
+                  <div class="toggle-field">
+                    <mat-slide-toggle formControlName="imprimirCopiaCliente" color="primary">
+                      Imprimir copia para cliente
+                    </mat-slide-toggle>
+                  </div>
+                </div>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Mensaje del Pie de Página</mat-label>
+                  <textarea matInput formControlName="mensajePieRecibo" placeholder="Gracias por su compra..." rows="3"></textarea>
+                  <mat-icon matPrefix>message</mat-icon>
+                </mat-form-field>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Tab: Comportamiento de Ventas -->
+          <mat-tab label="Comportamiento de Ventas">
+            <div class="tab-content">
+              <div class="section">
+                <h3>Configuración de Impuestos</h3>
+                
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Impuesto por Defecto</mat-label>
+                  <mat-select formControlName="impuestoPorDefectoId">
+                    <mat-option [value]="null">Sin impuesto por defecto</mat-option>
+                    <mat-option *ngFor="let tax of taxes" [value]="tax.id">
+                      {{ tax.nombre }} ({{ tax.porcentaje }}%)
+                    </mat-option>
+                  </mat-select>
+                  <mat-icon matPrefix>local_offer</mat-icon>
+                </mat-form-field>
+              </div>
+
+              <div class="section">
+                <h3>Permisos de Operación</h3>
+                
+                <div class="form-row">
+                  <div class="toggle-field">
+                    <mat-slide-toggle formControlName="permitirDescuentos" color="primary">
+                      Permitir descuentos manuales
+                    </mat-slide-toggle>
+                  </div>
+
+                  <div class="toggle-field">
+                    <mat-slide-toggle formControlName="permitirDevoluciones" color="primary">
+                      Permitir devoluciones
+                    </mat-slide-toggle>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Descuento Máximo (%)</mat-label>
+                    <input matInput type="number" formControlName="descuentoMaximoPorcentaje" placeholder="100" min="0" max="100">
+                    <span matSuffix>%</span>
+                    <mat-icon matPrefix>percent</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Tiempo Límite Anulación (min)</mat-label>
+                    <input matInput type="number" formControlName="tiempoLimiteAnulacionMinutos" placeholder="30" min="0" max="1440">
+                    <span matSuffix>min</span>
+                    <mat-icon matPrefix>timer</mat-icon>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Tab: Moneda y Formato -->
+          <mat-tab label="Moneda y Formato">
+            <div class="tab-content">
+              <div class="section">
+                <h3>Configuración de Moneda</h3>
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Moneda por Defecto</mat-label>
+                    <mat-select formControlName="monedaPorDefecto">
+                      <mat-option *ngFor="let moneda of monedas" [value]="moneda.value">
+                        {{ moneda.label }}
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>attach_money</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Símbolo de Moneda</mat-label>
+                    <mat-select formControlName="simboloMoneda">
+                      <mat-option *ngFor="let simbolo of simbolosMoneda" [value]="simbolo.value">
+                        {{ simbolo.label }}
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>monetization_on</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Decimales</mat-label>
+                    <input matInput type="number" formControlName="decimalesMoneda" placeholder="2" min="0" max="4">
+                    <mat-icon matPrefix>numbers</mat-icon>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Tab: Métodos de Pago -->
+          <mat-tab label="Métodos de Pago">
+            <div class="tab-content">
+              <div class="section">
+                <h3>Métodos de Pago Habilitados</h3>
+                
+                <div class="payment-methods">
+                  <div class="payment-method">
+                    <mat-icon>money</mat-icon>
+                    <span>Efectivo</span>
+                    <mat-slide-toggle formControlName="efectivoHabilitado" color="primary"></mat-slide-toggle>
+                  </div>
+
+                  <div class="payment-method">
+                    <mat-icon>credit_card</mat-icon>
+                    <span>Tarjeta</span>
+                    <mat-slide-toggle formControlName="tarjetaHabilitado" color="primary"></mat-slide-toggle>
+                  </div>
+
+                  <div class="payment-method">
+                    <mat-icon>account_balance</mat-icon>
+                    <span>Transferencia</span>
+                    <mat-slide-toggle formControlName="transferenciaHabilitado" color="primary"></mat-slide-toggle>
+                  </div>
+
+                  <div class="payment-method">
+                    <mat-icon>account_balance_wallet</mat-icon>
+                    <span>Crédito</span>
+                    <mat-slide-toggle formControlName="creditoHabilitado" color="primary"></mat-slide-toggle>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Tab: Modo Operación -->
+          <mat-tab label="Modo Operación">
+            <div class="tab-content">
+              <div class="section">
+                <h3>Configuración de Sincronización</h3>
+                
+                <div class="form-row">
+                  <div class="toggle-field">
+                    <mat-slide-toggle formControlName="modoOfflineHabilitado" color="primary">
+                      Habilitar modo offline
+                    </mat-slide-toggle>
+                    <span class="toggle-hint">Permite operar sin conexión a internet</span>
+                  </div>
+                </div>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Intervalo de Sincronización (minutos)</mat-label>
+                  <input matInput type="number" formControlName="intervaloSincronizacionMinutos" placeholder="15" min="1" max="1440">
+                  <span matSuffix>min</span>
+                  <mat-icon matPrefix>sync</mat-icon>
+                </mat-form-field>
+              </div>
+            </div>
+          </mat-tab>
+
+        </mat-tab-group>
+
+        <div class="form-actions">
+          <button mat-stroked-button type="button" (click)="resetForm()" [disabled]="loading">
+            Cancelar
+          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="loading || configForm.invalid">
+            <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+            <span *ngIf="!loading">{{ isEditing ? 'Actualizar' : 'Crear' }} Configuración</span>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -41,6 +41,7 @@ namespace jam_POS.Infrastructure.Data
         public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<Empresa> Empresas { get; set; }
         public DbSet<Impuesto> Impuestos { get; set; }
+        public DbSet<ConfiguracionPOS> ConfiguracionesPOS { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -101,6 +102,84 @@ namespace jam_POS.Infrastructure.Data
                 // Indexes
                 entity.HasIndex(e => e.RNC);
                 entity.HasIndex(e => e.Activo);
+            });
+
+            // Configure ConfiguracionPOS entity
+            modelBuilder.Entity<ConfiguracionPOS>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                
+                entity.Property(e => e.PrefijoRecibo)
+                    .IsRequired()
+                    .HasMaxLength(10);
+                
+                entity.Property(e => e.PrefijoFactura)
+                    .IsRequired()
+                    .HasMaxLength(10);
+                
+                entity.Property(e => e.SiguienteNumeroRecibo)
+                    .IsRequired()
+                    .HasDefaultValue(1);
+                
+                entity.Property(e => e.SiguienteNumeroFactura)
+                    .IsRequired()
+                    .HasDefaultValue(1);
+                
+                entity.Property(e => e.MensajePieRecibo)
+                    .HasMaxLength(500);
+                
+                entity.Property(e => e.MonedaPorDefecto)
+                    .IsRequired()
+                    .HasMaxLength(3)
+                    .HasDefaultValue("DOP");
+                
+                entity.Property(e => e.SimboloMoneda)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .HasDefaultValue("$");
+                
+                entity.Property(e => e.DecimalesMoneda)
+                    .IsRequired()
+                    .HasDefaultValue(2);
+                
+                entity.Property(e => e.FormatoPapel)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasDefaultValue("TERMICO_58");
+                
+                entity.Property(e => e.DescuentoMaximoPorcentaje)
+                    .HasColumnType("decimal(5,2)")
+                    .IsRequired()
+                    .HasDefaultValue(100);
+                
+                entity.Property(e => e.TiempoLimiteAnulacionMinutos)
+                    .IsRequired()
+                    .HasDefaultValue(30);
+                
+                entity.Property(e => e.IntervaloSincronizacionMinutos)
+                    .IsRequired()
+                    .HasDefaultValue(15);
+                
+                entity.Property(e => e.CreatedAt)
+                    .IsRequired();
+                
+                entity.Property(e => e.UpdatedAt)
+                    .IsRequired();
+                
+                // Configure relationships
+                entity.HasOne(c => c.Empresa)
+                    .WithMany()
+                    .HasForeignKey(c => c.EmpresaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.HasOne(c => c.ImpuestoPorDefecto)
+                    .WithMany()
+                    .HasForeignKey(c => c.ImpuestoPorDefectoId)
+                    .OnDelete(DeleteBehavior.SetNull);
+                
+                // Indexes
+                entity.HasIndex(e => e.EmpresaId);
+                entity.HasIndex(e => e.ImpuestoPorDefectoId);
             });
 
             // Configure Impuesto entity
@@ -557,6 +636,9 @@ namespace jam_POS.Infrastructure.Data
                 e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
             
             modelBuilder.Entity<Impuesto>().HasQueryFilter(e => 
+                e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
+            
+            modelBuilder.Entity<ConfiguracionPOS>().HasQueryFilter(e => 
                 e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
             
             // Para roles: mostrar roles de sistema (IsSystem=true) + roles del tenant actual
