@@ -31,7 +31,11 @@ namespace jam_POS.Application.Services
             try
             {
                 // Find user by username
+                // IMPORTANTE: Usar IgnoreQueryFilters() porque en el momento del login
+                // el usuario NO está autenticado y no tenemos TenantId en el contexto.
+                // El Global Query Filter bloquearía el login de usuarios con empresa.
                 var user = await _context.Users
+                    .IgnoreQueryFilters() // ← CRÍTICO para permitir login
                     .Include(u => u.Role)
                     .Include(u => u.Empresa)
                     .FirstOrDefaultAsync(u => u.Username == request.Username && u.IsActive);
