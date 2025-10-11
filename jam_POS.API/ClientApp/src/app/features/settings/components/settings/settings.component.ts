@@ -66,19 +66,19 @@ export class SettingsComponent {
       available: true
     },
     {
+      title: 'Impuestos',
+      description: 'Configura los impuestos y tasas aplicables',
+      icon: 'receipt_long',
+      route: '/configuraciones/impuestos',
+      color: '#F59E0B',
+      available: true
+    },
+    {
       title: 'Empresa',
       description: 'Configura la información de tu empresa',
       icon: 'business',
       route: '/configuraciones/empresa',
       color: '#EC4899',
-      available: false
-    },
-    {
-      title: 'Impuestos',
-      description: 'Configura los impuestos y tasas',
-      icon: 'receipt_long',
-      route: '/configuraciones/impuestos',
-      color: '#F59E0B',
       available: false
     },
     {

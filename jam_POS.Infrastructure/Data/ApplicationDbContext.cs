@@ -40,6 +40,7 @@ namespace jam_POS.Infrastructure.Data
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<Empresa> Empresas { get; set; }
+        public DbSet<Impuesto> Impuestos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -100,6 +101,57 @@ namespace jam_POS.Infrastructure.Data
                 // Indexes
                 entity.HasIndex(e => e.RNC);
                 entity.HasIndex(e => e.Activo);
+            });
+
+            // Configure Impuesto entity
+            modelBuilder.Entity<Impuesto>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                
+                entity.Property(e => e.Nombre)
+                    .IsRequired()
+                    .HasMaxLength(100);
+                
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500);
+                
+                entity.Property(e => e.Tipo)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasDefaultValue("PORCENTUAL");
+                
+                entity.Property(e => e.Porcentaje)
+                    .HasColumnType("decimal(5,2)")
+                    .IsRequired();
+                
+                entity.Property(e => e.MontoFijo)
+                    .HasColumnType("decimal(18,2)");
+                
+                entity.Property(e => e.AplicaPorDefecto)
+                    .IsRequired()
+                    .HasDefaultValue(false);
+                
+                entity.Property(e => e.Activo)
+                    .IsRequired()
+                    .HasDefaultValue(true);
+                
+                entity.Property(e => e.CreatedAt)
+                    .IsRequired();
+                
+                entity.Property(e => e.UpdatedAt)
+                    .IsRequired();
+                
+                // Configure relationship with Empresa
+                entity.HasOne(i => i.Empresa)
+                    .WithMany()
+                    .HasForeignKey(i => i.EmpresaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                // Indexes
+                entity.HasIndex(e => e.Nombre);
+                entity.HasIndex(e => e.Activo);
+                entity.HasIndex(e => e.EmpresaId);
+                entity.HasIndex(e => e.AplicaPorDefecto);
             });
 
             // Configure Categoria entity
@@ -502,6 +554,9 @@ namespace jam_POS.Infrastructure.Data
                 e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
             
             modelBuilder.Entity<User>().HasQueryFilter(e => 
+                e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
+            
+            modelBuilder.Entity<Impuesto>().HasQueryFilter(e => 
                 e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
             
             // Para roles: mostrar roles de sistema (IsSystem=true) + roles del tenant actual

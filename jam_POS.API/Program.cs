@@ -35,6 +35,7 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEmpresaService, EmpresaService>();
+builder.Services.AddScoped<IImpuestoService, ImpuestoService>();
 builder.Services.AddScoped<JwtService>();
 
 // Multi-Tenant Services

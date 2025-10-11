@@ -4,6 +4,7 @@ import { SettingsComponent } from './components/settings/settings.component';
 import { CategoryListComponent } from '../categories/components/category-list/category-list.component';
 import { RoleListComponent } from '../roles/components/role-list/role-list.component';
 import { UserListComponent } from '../users/components/user-list/user-list.component';
+import { TaxListComponent } from '../taxes/components/tax-list/tax-list.component';
 
 const routes: Routes = [
   {
@@ -21,6 +22,10 @@ const routes: Routes = [
   {
     path: 'usuarios',
     component: UserListComponent
+  },
+  {
+    path: 'impuestos',
+    component: TaxListComponent
   }
 ];
 
@@ -30,6 +35,7 @@ const routes: Routes = [
     CategoryListComponent,
     RoleListComponent,
     UserListComponent,
+    TaxListComponent,
     RouterModule.forChild(routes)
   ]
 })
