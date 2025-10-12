@@ -42,6 +42,9 @@ namespace jam_POS.Infrastructure.Data
         public DbSet<Empresa> Empresas { get; set; }
         public DbSet<Impuesto> Impuestos { get; set; }
         public DbSet<ConfiguracionPOS> ConfiguracionesPOS { get; set; }
+        public DbSet<Venta> Ventas { get; set; }
+        public DbSet<VentaItem> VentaItems { get; set; }
+        public DbSet<Pago> Pagos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -102,6 +105,202 @@ namespace jam_POS.Infrastructure.Data
                 // Indexes
                 entity.HasIndex(e => e.RNC);
                 entity.HasIndex(e => e.Activo);
+            });
+
+            // Configure Venta entity
+            modelBuilder.Entity<Venta>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                
+                entity.Property(e => e.NumeroVenta)
+                    .IsRequired()
+                    .HasMaxLength(50);
+                
+                entity.Property(e => e.FechaVenta)
+                    .IsRequired();
+                
+                entity.Property(e => e.Notas)
+                    .HasMaxLength(500);
+                
+                entity.Property(e => e.Subtotal)
+                    .HasColumnType("decimal(18,2)")
+                    .IsRequired();
+                
+                entity.Property(e => e.TotalImpuestos)
+                    .HasColumnType("decimal(18,2)")
+                    .IsRequired();
+                
+                entity.Property(e => e.TotalDescuentos)
+                    .HasColumnType("decimal(18,2)")
+                    .IsRequired();
+                
+                entity.Property(e => e.Total)
+                    .HasColumnType("decimal(18,2)")
+                    .IsRequired();
+                
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .HasDefaultValue("COMPLETADA");
+                
+                entity.Property(e => e.MotivoCancelacion)
+                    .HasMaxLength(500);
+                
+                entity.Property(e => e.CreatedAt)
+                    .IsRequired();
+                
+                entity.Property(e => e.UpdatedAt)
+                    .IsRequired();
+                
+                // Configure relationships
+                entity.HasOne(v => v.Empresa)
+                    .WithMany()
+                    .HasForeignKey(v => v.EmpresaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.HasOne(v => v.Usuario)
+                    .WithMany()
+                    .HasForeignKey(v => v.UsuarioId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                
+                entity.HasMany(v => v.VentaItems)
+                    .WithOne(vi => vi.Venta)
+                    .HasForeignKey(vi => vi.VentaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.HasMany(v => v.Pagos)
+                    .WithOne(p => p.Venta)
+                    .HasForeignKey(p => p.VentaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                // Indexes
+                entity.HasIndex(e => e.NumeroVenta);
+                entity.HasIndex(e => e.FechaVenta);
+                entity.HasIndex(e => e.Estado);
+                entity.HasIndex(e => e.EmpresaId);
+                entity.HasIndex(e => e.UsuarioId);
+            });
+
+            // Configure VentaItem entity
+            modelBuilder.Entity<VentaItem>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                
+                entity.Property(e => e.ProductoNombre)
+                    .IsRequired()
+                    .HasMaxLength(200);
+                
+                entity.Property(e => e.ProductoCodigo)
+                    .HasMaxLength(50);
+                
+                entity.Property(e => e.Cantidad)
+                    .HasColumnType("decimal(18,3)")
+                    .IsRequired();
+                
+                entity.Property(e => e.PrecioUnitario)
+                    .HasColumnType("decimal(18,2)")
+                    .IsRequired();
+                
+                entity.Property(e => e.Subtotal)
+                    .HasColumnType("decimal(18,2)")
+                    .IsRequired();
+                
+                entity.Property(e => e.DescuentoPorcentaje)
+                    .HasColumnType("decimal(5,2)")
+                    .HasDefaultValue(0);
+                
+                entity.Property(e => e.DescuentoMonto)
+                    .HasColumnType("decimal(18,2)")
+                    .HasDefaultValue(0);
+                
+                entity.Property(e => e.TotalImpuestos)
+                    .HasColumnType("decimal(18,2)")
+                    .HasDefaultValue(0);
+                
+                entity.Property(e => e.Total)
+                    .HasColumnType("decimal(18,2)")
+                    .IsRequired();
+                
+                entity.Property(e => e.Notas)
+                    .HasMaxLength(500);
+                
+                entity.Property(e => e.CreatedAt)
+                    .IsRequired();
+                
+                entity.Property(e => e.UpdatedAt)
+                    .IsRequired();
+                
+                // Configure relationships
+                entity.HasOne(vi => vi.Empresa)
+                    .WithMany()
+                    .HasForeignKey(vi => vi.EmpresaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.HasOne(vi => vi.Venta)
+                    .WithMany(v => v.VentaItems)
+                    .HasForeignKey(vi => vi.VentaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.HasOne(vi => vi.Producto)
+                    .WithMany()
+                    .HasForeignKey(vi => vi.ProductoId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                
+                // Indexes
+                entity.HasIndex(e => e.VentaId);
+                entity.HasIndex(e => e.ProductoId);
+                entity.HasIndex(e => e.EmpresaId);
+            });
+
+            // Configure Pago entity
+            modelBuilder.Entity<Pago>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                
+                entity.Property(e => e.MetodoPago)
+                    .IsRequired()
+                    .HasMaxLength(50);
+                
+                entity.Property(e => e.Monto)
+                    .HasColumnType("decimal(18,2)")
+                    .IsRequired();
+                
+                entity.Property(e => e.Referencia)
+                    .HasMaxLength(100);
+                
+                entity.Property(e => e.Banco)
+                    .HasMaxLength(100);
+                
+                entity.Property(e => e.TipoTarjeta)
+                    .HasMaxLength(50);
+                
+                entity.Property(e => e.FechaPago)
+                    .IsRequired();
+                
+                entity.Property(e => e.Notas)
+                    .HasMaxLength(500);
+                
+                entity.Property(e => e.CreatedAt)
+                    .IsRequired();
+                
+                entity.Property(e => e.UpdatedAt)
+                    .IsRequired();
+                
+                // Configure relationships
+                entity.HasOne(p => p.Empresa)
+                    .WithMany()
+                    .HasForeignKey(p => p.EmpresaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.HasOne(p => p.Venta)
+                    .WithMany(v => v.Pagos)
+                    .HasForeignKey(p => p.VentaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                // Indexes
+                entity.HasIndex(e => e.VentaId);
+                entity.HasIndex(e => e.MetodoPago);
+                entity.HasIndex(e => e.EmpresaId);
             });
 
             // Configure ConfiguracionPOS entity
@@ -639,6 +838,15 @@ namespace jam_POS.Infrastructure.Data
                 e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
             
             modelBuilder.Entity<ConfiguracionPOS>().HasQueryFilter(e => 
+                e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
+            
+            modelBuilder.Entity<Venta>().HasQueryFilter(e => 
+                e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
+            
+            modelBuilder.Entity<VentaItem>().HasQueryFilter(e => 
+                e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
+            
+            modelBuilder.Entity<Pago>().HasQueryFilter(e => 
                 e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
             
             // Para roles: mostrar roles de sistema (IsSystem=true) + roles del tenant actual

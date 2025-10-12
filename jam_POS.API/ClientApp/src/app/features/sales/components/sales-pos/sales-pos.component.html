@@ -1,0 +1,264 @@
+<div class="sales-pos-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-info">
+      <h1>Punto de Venta</h1>
+      <div class="config-info">
+        <span class="currency">{{ posConfig?.simboloMoneda || '$' }} {{ posConfig?.monedaPorDefecto || 'DOP' }}</span>
+        <mat-chip class="status-chip" [class.active]="cartItems.length > 0">
+          {{ cartItems.length }} productos
+        </mat-chip>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button mat-stroked-button (click)="clearCart()" [disabled]="cartItems.length === 0 || processing">
+        <mat-icon>clear_all</mat-icon>
+        Limpiar
+      </button>
+    </div>
+  </div>
+
+  <div class="pos-layout">
+    <!-- Left Panel: Product Search -->
+    <div class="left-panel">
+      <mat-card class="search-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>search</mat-icon>
+            Buscar Productos
+          </mat-card-title>
+        </mat-card-header>
+        
+        <mat-divider></mat-divider>
+        
+        <mat-card-content>
+          <form [formGroup]="productSearchForm" (ngSubmit)="onSearchProducts()">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Buscar por nombre, código o descripción</mat-label>
+              <input matInput formControlName="searchTerm" placeholder="Ej: Coca Cola, 123456, Refresco">
+              <mat-icon matPrefix>search</mat-icon>
+              <button mat-icon-button matSuffix type="button" (click)="clearSearch()">
+                <mat-icon>clear</mat-icon>
+              </button>
+            </mat-form-field>
+          </form>
+
+          <div class="products-grid" *ngIf="!loading; else loadingProducts">
+            <div 
+              class="product-card" 
+              *ngFor="let product of filteredProducts; trackBy: trackByProductId"
+              (click)="addProductToCart(product)">
+              <div class="product-info">
+                <h4>{{ product.nombre }}</h4>
+                <p class="product-code" *ngIf="product.codigoBarras">{{ product.codigoBarras }}</p>
+                <p class="product-description" *ngIf="product.descripcion">{{ product.descripcion }}</p>
+              </div>
+              <div class="product-price">
+                <span class="price">{{ formatCurrency(product.precio) }}</span>
+                <mat-icon class="add-icon">add_shopping_cart</mat-icon>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #loadingProducts>
+            <div class="loading-container">
+              <mat-spinner diameter="40"></mat-spinner>
+              <p>Cargando productos...</p>
+            </div>
+          </ng-template>
+
+          <div class="empty-state" *ngIf="!loading && filteredProducts.length === 0">
+            <mat-icon>inventory_2</mat-icon>
+            <p>No se encontraron productos</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Right Panel: Cart and Checkout -->
+    <div class="right-panel">
+      <!-- Cart Summary -->
+      <mat-card class="cart-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>shopping_cart</mat-icon>
+            Carrito de Compras
+            <mat-chip class="item-count">{{ cartItems.length }}</mat-chip>
+          </mat-card-title>
+        </mat-card-header>
+        
+        <mat-divider></mat-divider>
+        
+        <mat-card-content>
+          <div class="cart-items" *ngIf="cartItems.length > 0; else emptyCart">
+            <div class="cart-item" *ngFor="let item of cartItems; let i = index; trackBy: trackByItemId">
+              <div class="item-info">
+                <h4>{{ item.productoNombre }}</h4>
+                <p class="item-code" *ngIf="item.productoCodigo">{{ item.productoCodigo }}</p>
+              </div>
+              
+              <div class="item-controls">
+                <div class="quantity-control">
+                  <button mat-icon-button (click)="updateItemQuantity(item, item.cantidad - 1)">
+                    <mat-icon>remove</mat-icon>
+                  </button>
+                  <span class="quantity">{{ item.cantidad }}</span>
+                  <button mat-icon-button (click)="updateItemQuantity(item, item.cantidad + 1)">
+                    <mat-icon>add</mat-icon>
+                  </button>
+                </div>
+                
+                <div class="price-control">
+                  <mat-form-field appearance="outline" class="price-field">
+                    <mat-label>Precio</mat-label>
+                    <input matInput type="number" [value]="item.precioUnitario" 
+                           (change)="onPriceChange(item, $event)" step="0.01" min="0">
+                    <span matPrefix>{{ posConfig?.simboloMoneda || '$' }}&nbsp;</span>
+                  </mat-form-field>
+                </div>
+                
+                <div class="discount-control">
+                  <mat-form-field appearance="outline" class="discount-field">
+                    <mat-label>Desc%</mat-label>
+                    <input matInput type="number" [value]="item.descuentoPorcentaje" 
+                           (change)="onDiscountChange(item, $event)" step="0.01" min="0" max="100">
+                    <span matSuffix>%</span>
+                  </mat-form-field>
+                </div>
+              </div>
+              
+              <div class="item-total">
+                <span class="total-amount">{{ formatCurrency(item.total) }}</span>
+                <button mat-icon-button color="warn" (click)="removeItemFromCart(i)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #emptyCart>
+            <div class="empty-cart">
+              <mat-icon>shopping_cart</mat-icon>
+              <p>Carrito vacío</p>
+              <small>Busca y selecciona productos para comenzar</small>
+            </div>
+          </ng-template>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Cart Totals -->
+      <mat-card class="totals-card" *ngIf="cartItems.length > 0">
+        <mat-card-content>
+          <div class="totals-row">
+            <span>Subtotal:</span>
+            <span>{{ formatCurrency(cartSubtotal) }}</span>
+          </div>
+          
+          <div class="totals-row" *ngIf="cartDiscounts > 0">
+            <span>Descuentos:</span>
+            <span class="discount">-{{ formatCurrency(cartDiscounts) }}</span>
+          </div>
+          
+          <div class="totals-row" *ngIf="cartTaxes > 0">
+            <span>Impuestos:</span>
+            <span>{{ formatCurrency(cartTaxes) }}</span>
+          </div>
+          
+          <mat-divider></mat-divider>
+          
+          <div class="totals-row total">
+            <span>Total:</span>
+            <span>{{ formatCurrency(cartTotal) }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Payment Methods -->
+      <mat-card class="payment-card" *ngIf="cartItems.length > 0">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>payment</mat-icon>
+            Métodos de Pago
+          </mat-card-title>
+        </mat-card-header>
+        
+        <mat-divider></mat-divider>
+        
+        <mat-card-content>
+          <div class="payment-buttons">
+            <button mat-stroked-button 
+                    *ngIf="posConfig?.efectivoHabilitado" 
+                    (click)="addPayment('EFECTIVO')"
+                    [disabled]="remainingAmount <= 0">
+              <mat-icon>money</mat-icon>
+              Efectivo
+            </button>
+            
+            <button mat-stroked-button 
+                    *ngIf="posConfig?.tarjetaHabilitado" 
+                    (click)="addPayment('TARJETA')"
+                    [disabled]="remainingAmount <= 0">
+              <mat-icon>credit_card</mat-icon>
+              Tarjeta
+            </button>
+            
+            <button mat-stroked-button 
+                    *ngIf="posConfig?.transferenciaHabilitado" 
+                    (click)="addPayment('TRANSFERENCIA')"
+                    [disabled]="remainingAmount <= 0">
+              <mat-icon>account_balance</mat-icon>
+              Transferencia
+            </button>
+            
+            <button mat-stroked-button 
+                    *ngIf="posConfig?.creditoHabilitado" 
+                    (click)="addPayment('CREDITO')"
+                    [disabled]="remainingAmount <= 0">
+              <mat-icon>account_balance_wallet</mat-icon>
+              Crédito
+            </button>
+          </div>
+
+          <div class="payments-list" *ngIf="payments.length > 0">
+            <div class="payment-item" *ngFor="let payment of payments; let i = index">
+              <div class="payment-info">
+                <mat-icon>{{ getPaymentIcon(payment.metodoPago) }}</mat-icon>
+                <span>{{ payment.metodoPago }}</span>
+              </div>
+              <div class="payment-amount">
+                <span>{{ formatCurrency(payment.monto) }}</span>
+                <button mat-icon-button color="warn" (click)="removePayment(i)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="remaining-amount" *ngIf="remainingAmount > 0.01">
+            <mat-icon>warning</mat-icon>
+            <span>Faltan: {{ formatCurrency(remainingAmount) }}</span>
+          </div>
+
+          <div class="change-amount" *ngIf="remainingAmount < -0.01">
+            <mat-icon>monetization_on</mat-icon>
+            <span>Cambio: {{ formatCurrency(-remainingAmount) }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Process Sale Button -->
+      <div class="process-sale" *ngIf="cartItems.length > 0">
+        <button mat-raised-button 
+                color="primary" 
+                size="large" 
+                class="process-button"
+                (click)="processSale()"
+                [disabled]="processing || remainingAmount > 0.01">
+          <mat-spinner *ngIf="processing" diameter="20"></mat-spinner>
+          <mat-icon *ngIf="!processing">point_of_sale</mat-icon>
+          <span>{{ processing ? 'Procesando...' : 'Procesar Venta' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

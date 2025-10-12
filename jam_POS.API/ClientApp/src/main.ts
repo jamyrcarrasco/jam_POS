@@ -39,6 +39,11 @@ const providers = [
         canActivate: [AuthGuard]
       },
       { 
+        path: 'ventas', 
+        loadChildren: () => import('./app/features/sales/sales.module').then(m => m.SalesModule),
+        canActivate: [AuthGuard]
+      },
+      { 
         path: 'dashboard', 
         loadComponent: () => import('./app/dashboard/dashboard.component').then(m => m.DashboardComponent), 
         canActivate: [AuthGuard] 

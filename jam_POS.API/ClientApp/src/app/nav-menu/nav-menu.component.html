@@ -16,8 +16,8 @@
         <mat-icon>inventory</mat-icon>
         Productos
       </a>
-      <a mat-button [routerLink]="['/counter']" routerLinkActive="active">
-        <mat-icon>add_shopping_cart</mat-icon>
+      <a mat-button [routerLink]="['/ventas']" routerLinkActive="active">
+        <mat-icon>point_of_sale</mat-icon>
         Ventas
       </a>
       <a mat-button [routerLink]="['/fetch-data']" routerLinkActive="active">
@@ -96,8 +96,8 @@
         <mat-icon matListItemIcon>inventory</mat-icon>
         <span matListItemTitle>Productos</span>
       </a>
-      <a mat-list-item [routerLink]="['/counter']" (click)="collapse()">
-        <mat-icon matListItemIcon>add_shopping_cart</mat-icon>
+      <a mat-list-item [routerLink]="['/ventas']" (click)="collapse()">
+        <mat-icon matListItemIcon>point_of_sale</mat-icon>
         <span matListItemTitle>Ventas</span>
       </a>
       <a mat-list-item [routerLink]="['/fetch-data']" (click)="collapse()">
