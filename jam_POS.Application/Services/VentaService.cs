@@ -101,10 +101,24 @@ namespace jam_POS.Application.Services
                     // Calcular subtotal del item
                     var subtotalItem = itemRequest.Cantidad * itemRequest.PrecioUnitario;
                     
-                    // Calcular descuentos
+                    // Validar y calcular descuentos
                     var descuentoMonto = 0m;
                     if (itemRequest.DescuentoPorcentaje > 0)
                     {
+                        // Validar límite máximo de descuento
+                        var configuracion = await _configuracionPOSService.GetConfiguracionAsync();
+                        if (configuracion?.DescuentoMaximoPorcentaje != null && 
+                            itemRequest.DescuentoPorcentaje > configuracion.DescuentoMaximoPorcentaje)
+                        {
+                            throw new InvalidOperationException($"El descuento máximo permitido es {configuracion.DescuentoMaximoPorcentaje}%");
+                        }
+
+                        // Validar si se permiten descuentos manuales
+                        if (configuracion?.PermitirDescuentos == false)
+                        {
+                            throw new InvalidOperationException("Los descuentos manuales no están permitidos");
+                        }
+
                         descuentoMonto = subtotalItem * (itemRequest.DescuentoPorcentaje / 100);
                     }
                     else if (itemRequest.DescuentoMonto > 0)
@@ -179,6 +193,9 @@ namespace jam_POS.Application.Services
                 {
                     throw new InvalidOperationException($"El total pagado (${totalPagado:F2}) no coincide con el total de la venta (${venta.Total:F2})");
                 }
+
+                // Validar métodos de pago habilitados
+                await ValidarMetodosPagoAsync(request.Pagos);
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -330,6 +347,37 @@ namespace jam_POS.Application.Services
             // TODO: Implementar obtención del usuario actual desde el contexto de autenticación
             // Por ahora retornamos 1 como placeholder
             return 1;
+        }
+
+        private async Task ValidarMetodosPagoAsync(IEnumerable<CreatePagoRequest> pagos)
+        {
+            var configuracion = await _configuracionPOSService.GetConfiguracionAsync();
+            if (configuracion == null) return;
+
+            foreach (var pago in pagos)
+            {
+                switch (pago.MetodoPago.ToUpper())
+                {
+                    case "EFECTIVO":
+                        if (!configuracion.EfectivoHabilitado)
+                            throw new InvalidOperationException("El método de pago EFECTIVO no está habilitado");
+                        break;
+                    case "TARJETA":
+                        if (!configuracion.TarjetaHabilitado)
+                            throw new InvalidOperationException("El método de pago TARJETA no está habilitado");
+                        break;
+                    case "TRANSFERENCIA":
+                        if (!configuracion.TransferenciaHabilitado)
+                            throw new InvalidOperationException("El método de pago TRANSFERENCIA no está habilitado");
+                        break;
+                    case "CREDITO":
+                        if (!configuracion.CreditoHabilitado)
+                            throw new InvalidOperationException("El método de pago CREDITO no está habilitado");
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Método de pago no válido: {pago.MetodoPago}");
+                }
+            }
         }
 
         private static VentaSummaryResponse MapToSummaryResponse(Venta venta)

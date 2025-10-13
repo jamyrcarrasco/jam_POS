@@ -21,6 +21,7 @@ import { Sale, SaleItem, Payment, CreateSaleRequest } from '../../models/sale.mo
 import { Product } from '../../../products/models/product.model';
 import { Tax } from '../../../taxes/models/tax.model';
 import { POSConfig } from '../../../pos-config/models/pos-config.model';
+import { CashPaymentModalComponent, CashPaymentData, CashPaymentResult } from '../cash-payment-modal/cash-payment-modal.component';
 
 @Component({
   selector: 'app-sales-pos',
@@ -115,6 +116,7 @@ export class SalesPOSComponent implements OnInit {
     this.posConfigService.getConfig().subscribe({
       next: (config) => {
         this.posConfig = config;
+        this.setupPaymentMethods();
       },
       error: (error) => {
         console.error('Error cargando configuración POS:', error);
@@ -125,14 +127,25 @@ export class SalesPOSComponent implements OnInit {
           transferenciaHabilitado: false,
           creditoHabilitado: false,
           simboloMoneda: '$',
-          monedaPorDefecto: 'DOP'
+          monedaPorDefecto: 'DOP',
+          decimalesMoneda: 2
         } as POSConfig;
+        this.setupPaymentMethods();
       }
     });
   }
 
   private setupPaymentMethods(): void {
-    this.availablePaymentMethods = ['EFECTIVO', 'TARJETA'];
+    if (this.posConfig) {
+      this.availablePaymentMethods = [];
+      if (this.posConfig.efectivoHabilitado) this.availablePaymentMethods.push('EFECTIVO');
+      if (this.posConfig.tarjetaHabilitado) this.availablePaymentMethods.push('TARJETA');
+      if (this.posConfig.transferenciaHabilitado) this.availablePaymentMethods.push('TRANSFERENCIA');
+      if (this.posConfig.creditoHabilitado) this.availablePaymentMethods.push('CREDITO');
+    } else {
+      // Fallback si no hay configuración
+      this.availablePaymentMethods = ['EFECTIVO', 'TARJETA'];
+    }
   }
 
   onSearchProducts(): void {
@@ -210,6 +223,23 @@ export class SalesPOSComponent implements OnInit {
   applyItemDiscount(item: SaleItem, discount: number): void {
     if (discount < 0 || discount > 100) return;
     
+    // Validar límite máximo de descuento configurado
+    if (this.posConfig?.descuentoMaximoPorcentaje && 
+        discount > this.posConfig.descuentoMaximoPorcentaje) {
+      this.snackBar.open(
+        `El descuento máximo permitido es ${this.posConfig.descuentoMaximoPorcentaje}%`, 
+        'Cerrar', 
+        { duration: 3000 }
+      );
+      return;
+    }
+    
+    // Validar si se permiten descuentos manuales
+    if (!this.posConfig?.permitirDescuentos && discount > 0) {
+      this.snackBar.open('Los descuentos manuales no están permitidos', 'Cerrar', { duration: 3000 });
+      return;
+    }
+    
     item.descuentoPorcentaje = discount;
     this.recalculateItemTotal(item);
     this.recalculateCartTotals();
@@ -266,18 +296,30 @@ export class SalesPOSComponent implements OnInit {
       return;
     }
 
-    const amount = this.remainingAmount;
-    const newPayment: Payment = {
-      id: 0,
-      ventaId: 0,
-      metodoPago: method,
-      monto: amount,
-      fechaPago: new Date(),
-      createdAt: new Date()
-    };
+    // Validar que el método de pago esté habilitado en la configuración
+    if (!this.availablePaymentMethods.includes(method)) {
+      this.snackBar.open(`El método de pago ${method} no está habilitado`, 'Cerrar', { duration: 3000 });
+      return;
+    }
 
-    this.payments.push(newPayment);
-    this.recalculateCartTotals();
+    // Si es pago en efectivo, abrir modal
+    if (method === 'EFECTIVO') {
+      this.openCashPaymentModal();
+    } else {
+      // Para otros métodos de pago, agregar directamente
+      const amount = this.remainingAmount;
+      const newPayment: Payment = {
+        id: 0,
+        ventaId: 0,
+        metodoPago: method,
+        monto: amount,
+        fechaPago: new Date(),
+        createdAt: new Date()
+      };
+
+      this.payments.push(newPayment);
+      this.recalculateCartTotals();
+    }
   }
 
   removePayment(index: number): void {
@@ -317,6 +359,14 @@ export class SalesPOSComponent implements OnInit {
       }))
     };
 
+    console.log('Processing sale with request:', {
+      cartTotal: this.cartTotal,
+      paymentsTotal: this.payments.reduce((sum, p) => sum + p.monto, 0),
+      remainingAmount: this.remainingAmount,
+      payments: this.payments,
+      saleRequest: saleRequest
+    });
+
     this.saleService.createSale(saleRequest).subscribe({
       next: (sale) => {
         this.snackBar.open(`Venta procesada exitosamente: ${sale.numeroVenta}`, 'Cerrar', { duration: 5000 });
@@ -333,7 +383,20 @@ export class SalesPOSComponent implements OnInit {
 
   formatCurrency(amount: number): string {
     const symbol = this.posConfig?.simboloMoneda || '$';
-    return `${symbol}${amount.toFixed(2)}`;
+    const decimals = this.posConfig?.decimalesMoneda || 2;
+    return `${symbol}${amount.toFixed(decimals)}`;
+  }
+
+  getDefaultCurrency(): string {
+    return this.posConfig?.monedaPorDefecto || 'DOP';
+  }
+
+  getCurrencyDecimals(): number {
+    return this.posConfig?.decimalesMoneda || 2;
+  }
+
+  areDiscountsAllowed(): boolean {
+    return this.posConfig?.permitirDescuentos || false;
   }
 
   getPaymentIcon(method: string): string {
@@ -363,10 +426,70 @@ export class SalesPOSComponent implements OnInit {
   }
 
   onDiscountChange(item: SaleItem, event: Event): void {
+    // Verificar si los descuentos están permitidos
+    if (!this.areDiscountsAllowed()) {
+      this.snackBar.open('Los descuentos no están permitidos en la configuración', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
     const input = event.target as HTMLInputElement;
     const newDiscount = parseFloat(input.value);
     if (!isNaN(newDiscount) && newDiscount >= 0 && newDiscount <= 100) {
       this.applyItemDiscount(item, newDiscount);
     }
+  }
+
+  private openCashPaymentModal(): void {
+    const modalData: CashPaymentData = {
+      totalAmount: this.remainingAmount,
+      currencySymbol: this.posConfig?.simboloMoneda || '$',
+      currencyDecimals: this.posConfig?.decimalesMoneda || 2
+    };
+
+    const dialogRef = this.dialog.open(CashPaymentModalComponent, {
+      width: '500px',
+      disableClose: true,
+      data: modalData
+    });
+
+    dialogRef.afterClosed().subscribe((result: CashPaymentResult | null) => {
+      if (result) {
+        // Agregar el pago en efectivo - el monto debe ser el total de la venta, no el monto recibido
+        console.log('Cash payment debug:', {
+          amountReceived: result.amountReceived,
+          change: result.change,
+          remainingAmount: this.remainingAmount,
+          cartTotal: this.cartTotal
+        });
+
+        const newPayment: Payment = {
+          id: 0,
+          ventaId: 0,
+          metodoPago: 'EFECTIVO',
+          monto: this.remainingAmount, // Usar el monto pendiente de pago, no el monto recibido
+          fechaPago: new Date(),
+          createdAt: new Date()
+        };
+
+        console.log('Payment to add:', newPayment);
+        this.payments.push(newPayment);
+        this.recalculateCartTotals();
+        console.log('After adding payment - remainingAmount:', this.remainingAmount);
+
+        // Mostrar mensaje del cambio
+        if (result.change > 0) {
+          this.snackBar.open(
+            `Cambio a devolver: ${this.formatCurrency(result.change)}`, 
+            'Cerrar', 
+            { duration: 5000 }
+          );
+        }
+
+        // Procesar la venta automáticamente si está completamente pagada
+        if (this.remainingAmount <= 0.01) {
+          this.processSale();
+        }
+      }
+    });
   }
 }

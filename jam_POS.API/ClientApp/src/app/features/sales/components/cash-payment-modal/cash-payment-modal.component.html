@@ -1,0 +1,63 @@
+<div class="cash-payment-modal">
+  <h2 mat-dialog-title>
+    <mat-icon>money</mat-icon>
+    Pago en Efectivo
+  </h2>
+  
+  <mat-dialog-content>
+    <div class="payment-info">
+      <mat-card class="total-card">
+        <mat-card-content>
+          <div class="total-row">
+            <span class="label">Total a Pagar:</span>
+            <span class="amount">{{ formatCurrency(data.totalAmount) }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      
+      <form [formGroup]="cashForm" class="cash-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Cantidad Recibida</mat-label>
+          <input matInput 
+                 type="number" 
+                 formControlName="amountReceived"
+                 placeholder="0.00"
+                 [step]="getStepValue()"
+                 min="0">
+          <span matPrefix>{{ data.currencySymbol }}&nbsp;</span>
+          <mat-icon matSuffix>money</mat-icon>
+        </mat-form-field>
+      </form>
+      
+      <div class="change-display" *ngIf="getChangeAmount() !== null">
+        <mat-card [class]="getChangeAmount()! >= 0 ? 'change-positive' : 'change-negative'">
+          <mat-card-content>
+            <div class="change-info">
+              <mat-icon>{{ getChangeAmount()! >= 0 ? 'monetization_on' : 'warning' }}</mat-icon>
+              <div class="change-details">
+                <span class="change-label">
+                  {{ getChangeAmount()! >= 0 ? 'Cambio a Devolver:' : 'Falta por Recibir:' }}
+                </span>
+                <span class="change-amount">{{ formatCurrency(getAbsChangeAmount()) }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </mat-dialog-content>
+  
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()" [disabled]="processing">
+      Cancelar
+    </button>
+    <button mat-raised-button 
+            color="primary" 
+            (click)="onProcessPayment()"
+            [disabled]="!isValidPayment() || processing">
+      <mat-spinner *ngIf="processing" diameter="20"></mat-spinner>
+      <mat-icon *ngIf="!processing">point_of_sale</mat-icon>
+      <span>{{ processing ? 'Procesando...' : 'Procesar Venta' }}</span>
+    </button>
+  </mat-dialog-actions>
+</div>
