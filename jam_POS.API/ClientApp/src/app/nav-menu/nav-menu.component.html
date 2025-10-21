@@ -20,6 +20,10 @@
         <mat-icon>point_of_sale</mat-icon>
         Ventas
       </a>
+      <a mat-button [routerLink]="['/clientes']" routerLinkActive="active">
+        <mat-icon>people</mat-icon>
+        Clientes
+      </a>
       <a mat-button [routerLink]="['/fetch-data']" routerLinkActive="active">
         <mat-icon>assessment</mat-icon>
         Reportes
@@ -99,6 +103,10 @@
       <a mat-list-item [routerLink]="['/ventas']" (click)="collapse()">
         <mat-icon matListItemIcon>point_of_sale</mat-icon>
         <span matListItemTitle>Ventas</span>
+      </a>
+      <a mat-list-item [routerLink]="['/clientes']" (click)="collapse()">
+        <mat-icon matListItemIcon>people</mat-icon>
+        <span matListItemTitle>Clientes</span>
       </a>
       <a mat-list-item [routerLink]="['/fetch-data']" (click)="collapse()">
         <mat-icon matListItemIcon>assessment</mat-icon>

@@ -45,6 +45,7 @@ namespace jam_POS.Infrastructure.Data
         public DbSet<Venta> Ventas { get; set; }
         public DbSet<VentaItem> VentaItems { get; set; }
         public DbSet<Pago> Pagos { get; set; }
+        public DbSet<Cliente> Clientes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -111,7 +112,7 @@ namespace jam_POS.Infrastructure.Data
             modelBuilder.Entity<Venta>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                
+
                 entity.Property(e => e.NumeroVenta)
                     .IsRequired()
                     .HasMaxLength(50);
@@ -162,12 +163,17 @@ namespace jam_POS.Infrastructure.Data
                     .WithMany()
                     .HasForeignKey(v => v.UsuarioId)
                     .OnDelete(DeleteBehavior.Restrict);
-                
+
+                entity.HasOne(v => v.Cliente)
+                    .WithMany(c => c.Ventas)
+                    .HasForeignKey(v => v.ClienteId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
                 entity.HasMany(v => v.VentaItems)
                     .WithOne(vi => vi.Venta)
                     .HasForeignKey(vi => vi.VentaId)
                     .OnDelete(DeleteBehavior.Cascade);
-                
+
                 entity.HasMany(v => v.Pagos)
                     .WithOne(p => p.Venta)
                     .HasForeignKey(p => p.VentaId)
@@ -179,6 +185,47 @@ namespace jam_POS.Infrastructure.Data
                 entity.HasIndex(e => e.Estado);
                 entity.HasIndex(e => e.EmpresaId);
                 entity.HasIndex(e => e.UsuarioId);
+            });
+
+            // Configure Cliente entity
+            modelBuilder.Entity<Cliente>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Nombre)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.Apellido)
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.Email)
+                    .HasMaxLength(150);
+
+                entity.Property(e => e.Telefono)
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Documento)
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Direccion)
+                    .HasMaxLength(300);
+
+                entity.Property(e => e.Notas)
+                    .HasMaxLength(500);
+
+                entity.Property(e => e.Activo)
+                    .HasDefaultValue(true);
+
+                entity.Property(e => e.CreatedAt)
+                    .IsRequired();
+
+                entity.Property(e => e.UpdatedAt)
+                    .IsRequired();
+
+                entity.HasIndex(e => new { e.Email, e.EmpresaId });
+                entity.HasIndex(e => new { e.Documento, e.EmpresaId });
+                entity.HasIndex(e => e.Activo);
             });
 
             // Configure VentaItem entity
@@ -837,13 +884,16 @@ namespace jam_POS.Infrastructure.Data
             modelBuilder.Entity<Impuesto>().HasQueryFilter(e => 
                 e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
             
-            modelBuilder.Entity<ConfiguracionPOS>().HasQueryFilter(e => 
+            modelBuilder.Entity<ConfiguracionPOS>().HasQueryFilter(e =>
                 e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
-            
-            modelBuilder.Entity<Venta>().HasQueryFilter(e => 
+
+            modelBuilder.Entity<Venta>().HasQueryFilter(e =>
                 e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
-            
-            modelBuilder.Entity<VentaItem>().HasQueryFilter(e => 
+
+            modelBuilder.Entity<Cliente>().HasQueryFilter(e =>
+                e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
+
+            modelBuilder.Entity<VentaItem>().HasQueryFilter(e =>
                 e.EmpresaId == null || e.EmpresaId == _tenantProvider!.GetTenantId());
             
             modelBuilder.Entity<Pago>().HasQueryFilter(e => 

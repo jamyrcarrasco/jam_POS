@@ -1,0 +1,275 @@
+<div class="customers-container">
+  <!-- Breadcrumbs -->
+  <nav class="breadcrumb-nav" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/dashboard']">
+          <mat-icon>home</mat-icon>
+          Inicio
+        </a>
+      </li>
+      <li class="breadcrumb-item active">
+        <span>Clientes</span>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Header -->
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <h1>Gestión de Clientes</h1>
+      </mat-card-title>
+      <div class="header-actions">
+        <button mat-raised-button color="primary" (click)="toggleForm()">
+          <mat-icon>{{ showForm ? 'close' : 'add' }}</mat-icon>
+          {{ showForm ? 'Cancelar' : 'Nuevo Cliente' }}
+        </button>
+      </div>
+    </mat-card-header>
+  </mat-card>
+
+  <!-- Customer Form -->
+  <mat-card class="form-card" *ngIf="showForm">
+    <mat-card-header>
+      <mat-card-title>
+        {{ isEditing ? 'Editar Cliente' : 'Nuevo Cliente' }}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
+        <div class="form-row two-col">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="nombre" placeholder="Juan" required>
+            <mat-icon matPrefix>person</mat-icon>
+            <mat-error *ngIf="customerForm.get('nombre')?.hasError('required')">
+              El nombre es requerido
+            </mat-error>
+            <mat-error *ngIf="customerForm.get('nombre')?.hasError('maxlength')">
+              Máximo 100 caracteres
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Apellido</mat-label>
+            <input matInput formControlName="apellido" placeholder="Pérez">
+            <mat-error *ngIf="customerForm.get('apellido')?.hasError('maxlength')">
+              Máximo 100 caracteres
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row two-col">
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" placeholder="cliente@ejemplo.com">
+            <mat-icon matPrefix>email</mat-icon>
+            <mat-error *ngIf="customerForm.get('email')?.hasError('email')">
+              Email no válido
+            </mat-error>
+            <mat-error *ngIf="customerForm.get('email')?.hasError('maxlength')">
+              Máximo 150 caracteres
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Teléfono</mat-label>
+            <input matInput formControlName="telefono" placeholder="809-555-1234">
+            <mat-icon matPrefix>call</mat-icon>
+            <mat-error *ngIf="customerForm.get('telefono')?.hasError('maxlength')">
+              Máximo 50 caracteres
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row two-col">
+          <mat-form-field appearance="outline">
+            <mat-label>Documento</mat-label>
+            <input matInput formControlName="documento" placeholder="001-0000000-1">
+            <mat-icon matPrefix>badge</mat-icon>
+            <mat-error *ngIf="customerForm.get('documento')?.hasError('maxlength')">
+              Máximo 50 caracteres
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Fecha de nacimiento</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="fechaNacimiento" placeholder="dd/mm/aaaa">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Dirección</mat-label>
+            <textarea matInput formControlName="direccion" rows="2" placeholder="Calle, número, ciudad"></textarea>
+            <mat-error *ngIf="customerForm.get('direccion')?.hasError('maxlength')">
+              Máximo 300 caracteres
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Notas</mat-label>
+            <textarea matInput formControlName="notas" rows="3" placeholder="Comentarios adicionales"></textarea>
+            <mat-error *ngIf="customerForm.get('notas')?.hasError('maxlength')">
+              Máximo 500 caracteres
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-slide-toggle formControlName="activo" color="primary">
+            Cliente activo
+          </mat-slide-toggle>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="form-actions">
+          <button mat-button type="button" (click)="cancelEdit()">Cancelar</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="customerForm.invalid || loading">
+            <mat-icon>{{ isEditing ? 'save' : 'person_add' }}</mat-icon>
+            {{ isEditing ? 'Actualizar' : 'Crear' }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Filters -->
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <form [formGroup]="filterForm">
+        <div class="filters-row">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Buscar</mat-label>
+            <input matInput formControlName="searchTerm" placeholder="Buscar por nombre, email o documento">
+            <mat-icon matPrefix>search</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Estado</mat-label>
+            <mat-select formControlName="activo">
+              <mat-option [value]="null">Todos</mat-option>
+              <mat-option [value]="true">Activos</mat-option>
+              <mat-option [value]="false">Inactivos</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <button mat-button type="button" (click)="clearFilters()" *ngIf="getActiveFilterCount() > 0">
+            <mat-icon>clear</mat-icon>
+            Limpiar
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Loading Spinner -->
+  <div class="loading-container" *ngIf="loading && !showForm">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <!-- Customers Table -->
+  <mat-card class="table-card" *ngIf="!loading">
+    <mat-card-content>
+      <div class="table-container">
+        <table mat-table [dataSource]="customers" matSort (matSortChange)="onSortChange($event)" class="customers-table">
+
+          <!-- Nombre Column -->
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Nombre </th>
+            <td mat-cell *matCellDef="let customer">
+              <div class="customer-name">
+                <div class="avatar">
+                  <mat-icon>person</mat-icon>
+                </div>
+                <div>
+                  <div class="full-name">{{ customer.nombreCompleto }}</div>
+                  <div class="identifier" *ngIf="customer.id">ID: {{ customer.id }}</div>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Contacto Column -->
+          <ng-container matColumnDef="contacto">
+            <th mat-header-cell *matHeaderCellDef> Contacto </th>
+            <td mat-cell *matCellDef="let customer">
+              <div class="contact-info">
+                <div class="contact-item" *ngIf="customer.email">
+                  <mat-icon>email</mat-icon>
+                  <span>{{ customer.email }}</span>
+                </div>
+                <div class="contact-item" *ngIf="customer.telefono">
+                  <mat-icon>call</mat-icon>
+                  <span>{{ customer.telefono }}</span>
+                </div>
+                <div class="contact-item" *ngIf="!customer.email && !customer.telefono">
+                  <mat-icon>info</mat-icon>
+                  <span>Sin información de contacto</span>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Documento Column -->
+          <ng-container matColumnDef="documento">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Documento </th>
+            <td mat-cell *matCellDef="let customer">
+              {{ customer.documento || 'N/D' }}
+            </td>
+          </ng-container>
+
+          <!-- Fecha Nacimiento Column -->
+          <ng-container matColumnDef="fechaNacimiento">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Nacimiento </th>
+            <td mat-cell *matCellDef="let customer">
+              {{ customer.fechaNacimiento ? (customer.fechaNacimiento | date:'mediumDate') : 'N/D' }}
+            </td>
+          </ng-container>
+
+          <!-- Activo Column -->
+          <ng-container matColumnDef="activo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Estado </th>
+            <td mat-cell *matCellDef="let customer">
+              <mat-chip [color]="getStatusChipColor(customer.activo)" selected>
+                <mat-icon>{{ customer.activo ? 'check_circle' : 'cancel' }}</mat-icon>
+                {{ customer.activo ? 'Activo' : 'Inactivo' }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Acciones Column -->
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef> Acciones </th>
+            <td mat-cell *matCellDef="let customer">
+              <button mat-icon-button color="primary" (click)="editCustomer(customer)" matTooltip="Editar">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteCustomer(customer.id)" matTooltip="Eliminar">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+
+      <mat-paginator
+        *ngIf="pagedResult"
+        [length]="pagedResult.totalCount"
+        [pageIndex]="pageNumber - 1"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="pageSizeOptions"
+        (page)="onPageChange($event)">
+      </mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</div>

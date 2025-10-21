@@ -44,6 +44,7 @@ namespace jam_POS.Application.Services
 
             var venta = await _context.Set<Venta>()
                 .Include(v => v.Usuario)
+                .Include(v => v.Cliente)
                 .Include(v => v.VentaItems)
                     .ThenInclude(vi => vi.Producto)
                 .Include(v => v.Pagos)
@@ -67,6 +68,17 @@ namespace jam_POS.Application.Services
             {
                 // Generar número de venta
                 var numeroVenta = await GenerarNumeroVentaAsync();
+
+                if (request.ClienteId.HasValue)
+                {
+                    var clienteExiste = await _context.Set<Cliente>()
+                        .AnyAsync(c => c.Id == request.ClienteId.Value);
+
+                    if (!clienteExiste)
+                    {
+                        throw new ArgumentException($"Cliente con ID {request.ClienteId.Value} no encontrado");
+                    }
+                }
 
                 // Crear la venta
                 var venta = new Venta
@@ -362,6 +374,10 @@ namespace jam_POS.Application.Services
                 FechaCancelacion = venta.FechaCancelacion,
                 MotivoCancelacion = venta.MotivoCancelacion,
                 ClienteId = venta.ClienteId,
+                ClienteNombre = venta.Cliente != null
+                    ? string.Join(" ", new[] { venta.Cliente.Nombre, venta.Cliente.Apellido }
+                        .Where(part => !string.IsNullOrWhiteSpace(part))).Trim()
+                    : null,
                 UsuarioId = venta.UsuarioId,
                 UsuarioNombre = venta.Usuario?.Username ?? "N/A",
                 CreatedAt = venta.CreatedAt,
