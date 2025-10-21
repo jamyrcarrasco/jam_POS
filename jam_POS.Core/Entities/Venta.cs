@@ -56,6 +56,7 @@ namespace jam_POS.Core.Entities
         // Navigation properties
         public virtual Empresa? Empresa { get; set; }
         public virtual User? Usuario { get; set; }
+        public virtual Cliente? Cliente { get; set; }
         public virtual ICollection<VentaItem> VentaItems { get; set; } = new List<VentaItem>();
         public virtual ICollection<Pago> Pagos { get; set; } = new List<Pago>();
     }

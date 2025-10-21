@@ -38,6 +38,7 @@ builder.Services.AddScoped<IEmpresaService, EmpresaService>();
 builder.Services.AddScoped<IImpuestoService, ImpuestoService>();
 builder.Services.AddScoped<IConfiguracionPOSService, ConfiguracionPOSService>();
 builder.Services.AddScoped<IVentaService, VentaService>();
+builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<JwtService>();
 
 // Multi-Tenant Services

@@ -38,15 +38,20 @@ const providers = [
         loadChildren: () => import('./app/features/settings/settings.module').then(m => m.SettingsModule),
         canActivate: [AuthGuard]
       },
-      { 
-        path: 'ventas', 
+      {
+        path: 'ventas',
         loadChildren: () => import('./app/features/sales/sales.module').then(m => m.SalesModule),
         canActivate: [AuthGuard]
       },
-      { 
-        path: 'dashboard', 
-        loadComponent: () => import('./app/dashboard/dashboard.component').then(m => m.DashboardComponent), 
-        canActivate: [AuthGuard] 
+      {
+        path: 'clientes',
+        loadChildren: () => import('./app/features/customers/customers.module').then(m => m.CustomersModule),
+        canActivate: [AuthGuard]
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./app/dashboard/dashboard.component').then(m => m.DashboardComponent),
+        canActivate: [AuthGuard]
       },
       { path: '**', redirectTo: '/dashboard' }
     ]),

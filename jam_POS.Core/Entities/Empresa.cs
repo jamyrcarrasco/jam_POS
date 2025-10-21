@@ -54,6 +54,7 @@ namespace jam_POS.Core.Entities
         public virtual ICollection<User> Users { get; set; } = new List<User>();
         public virtual ICollection<Producto> Productos { get; set; } = new List<Producto>();
         public virtual ICollection<Categoria> Categorias { get; set; } = new List<Categoria>();
+        public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
     }
 }
 
