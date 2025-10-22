@@ -1,0 +1,61 @@
+<div class="image-upload-container">
+  <!-- Upload Area -->
+  <mat-card 
+    class="upload-area"
+    [class.dragover]="isDragOver"
+    [class.uploading]="isUploading"
+    [class.has-image]="previewUrl"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)"
+    (click)="fileInput.click()">
+    
+    <mat-card-content class="upload-content">
+      <!-- Preview Image -->
+      <div *ngIf="previewUrl && !isUploading" class="image-preview">
+        <img [src]="previewUrl" [alt]="'Preview'">
+        <div class="image-overlay">
+          <button mat-icon-button color="warn" (click)="removeImage($event)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Upload Placeholder -->
+      <div *ngIf="!previewUrl && !isUploading" class="upload-placeholder">
+        <mat-icon class="upload-icon">cloud_upload</mat-icon>
+        <h3>Arrastra una imagen aquí</h3>
+        <p>o haz clic para seleccionar</p>
+        <small>JPG, PNG, WEBP, GIF (máx. 10MB)</small>
+      </div>
+
+      <!-- Upload Progress -->
+      <div *ngIf="isUploading" class="upload-progress">
+        <mat-icon class="upload-icon">cloud_upload</mat-icon>
+        <h3>Subiendo imagen...</h3>
+        <mat-progress-bar 
+          mode="determinate" 
+          [value]="uploadProgress.percentage">
+        </mat-progress-bar>
+        <p>{{ uploadProgress.percentage }}% completado</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Hidden File Input -->
+  <input 
+    #fileInput
+    type="file"
+    accept="image/*"
+    (change)="onFileSelected($event)"
+    style="display: none">
+
+  <!-- Image Info -->
+  <div *ngIf="uploadedFile" class="image-info">
+    <mat-icon>check_circle</mat-icon>
+    <span>Imagen subida: {{ uploadedFile.fileName }}</span>
+    <button mat-icon-button (click)="copyUrl()" matTooltip="Copiar URL">
+      <mat-icon>content_copy</mat-icon>
+    </button>
+  </div>
+</div>

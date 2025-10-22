@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,6 +22,7 @@ import { ProductService } from '../../services/product.service';
 import { Product, ProductFilter } from '../../models/product.model';
 import { PagedResult } from '../../../../core/models/pagination.model';
 import { CategoryService } from '../../../categories/services/category.service';
+import { ProductModalComponent, ProductModalData } from '../product-modal/product-modal.component';
 
 @Component({
   selector: 'app-product-list',
@@ -51,12 +53,8 @@ import { CategoryService } from '../../../categories/services/category.service';
 export class ProductListComponent implements OnInit {
   products: Product[] = [];
   pagedResult: PagedResult<Product> | null = null;
-  productForm: FormGroup;
   filterForm: FormGroup;
   categorias: any[] = [];
-  
-  isEditing = false;
-  editingId: number | null = null;
   displayedColumns: string[] = ['nombre', 'descripcion', 'precio', 'stock', 'categoriaNombre', 'activo', 'acciones'];
   loading = false;
   showFilters = false;
@@ -74,22 +72,9 @@ export class ProductListComponent implements OnInit {
     private productService: ProductService,
     private categoryService: CategoryService,
     private fb: FormBuilder,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
-    this.productForm = this.fb.group({
-      nombre: ['', [Validators.required, Validators.maxLength(200)]],
-      descripcion: ['', [Validators.maxLength(500)]],
-      precio: [0, [Validators.required, Validators.min(0.01)]],
-      stock: [0, [Validators.required, Validators.min(0)]],
-      categoriaId: [null],
-      codigoBarras: [''],
-      imagenUrl: [''],
-      precioCompra: [0, [Validators.min(0)]],
-      margenGanancia: [0, [Validators.min(0), Validators.max(100)]],
-      stockMinimo: [0, [Validators.min(0)]],
-      activo: [true]
-    });
-
     this.filterForm = this.fb.group({
       searchTerm: [''],
       categoria: [''],
@@ -169,75 +154,29 @@ export class ProductListComponent implements OnInit {
     });
   }
 
-  onSubmit(): void {
-    if (this.productForm.valid) {
-      const productData = this.productForm.value;
-      
-      if (this.isEditing && this.editingId) {
-        this.updateProduct(productData);
-      } else {
-        this.createProduct(productData);
-      }
-    } else {
-      this.snackBar.open('Por favor complete todos los campos requeridos', 'Cerrar', { duration: 3000 });
-    }
-  }
+  openProductModal(product?: Product): void {
+    const dialogData: ProductModalData = {
+      product: product,
+      isEdit: !!product
+    };
 
-  private createProduct(productData: any): void {
-    this.loading = true;
-    this.productService.createProduct(productData).subscribe({
-      next: () => {
-        this.loadProducts();
-        this.resetForm();
-        this.snackBar.open('Producto creado exitosamente', 'Cerrar', { duration: 3000 });
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error creating product:', error);
-        this.snackBar.open('Error al crear el producto', 'Cerrar', { duration: 3000 });
-        this.loading = false;
-      }
+    const dialogRef = this.dialog.open(ProductModalComponent, {
+      data: dialogData,
+      width: '800px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      disableClose: false
     });
-  }
 
-  private updateProduct(productData: any): void {
-    if (!this.editingId) return;
-    
-    this.loading = true;
-    this.productService.updateProduct(this.editingId, productData).subscribe({
-      next: () => {
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.success) {
         this.loadProducts();
-        this.resetForm();
-        this.snackBar.open('Producto actualizado exitosamente', 'Cerrar', { duration: 3000 });
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error updating product:', error);
-        this.snackBar.open('Error al actualizar el producto', 'Cerrar', { duration: 3000 });
-        this.loading = false;
       }
     });
   }
 
   editProduct(product: Product): void {
-    this.isEditing = true;
-    this.editingId = product.id;
-    this.productForm.patchValue({
-      nombre: product.nombre,
-      descripcion: product.descripcion,
-      precio: product.precio,
-      stock: product.stock,
-      categoriaId: product.categoriaId,
-      codigoBarras: product.codigoBarras,
-      imagenUrl: product.imagenUrl,
-      precioCompra: product.precioCompra,
-      margenGanancia: product.margenGanancia,
-      stockMinimo: product.stockMinimo,
-      activo: product.activo
-    });
-
-    // Scroll to form
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.openProductModal(product);
   }
 
   deleteProduct(id: number): void {
@@ -258,15 +197,7 @@ export class ProductListComponent implements OnInit {
     }
   }
 
-  resetForm(): void {
-    this.productForm.reset({ activo: true });
-    this.isEditing = false;
-    this.editingId = null;
-  }
 
-  cancelEdit(): void {
-    this.resetForm();
-  }
 
   getStockStatus(stock: number, stockMinimo?: number): string {
     if (stock === 0) return 'Sin stock';
@@ -295,4 +226,5 @@ export class ProductListComponent implements OnInit {
     if (filters.activo !== null) count++;
     return count;
   }
+
 }

@@ -8,109 +8,15 @@
     </mat-card-header>
   </mat-card>
 
-  <!-- Product Form -->
-  <mat-card class="form-card">
-    <mat-card-header>
-      <mat-card-title>
-        {{ isEditing ? 'Editar Producto' : 'Nuevo Producto' }}
-      </mat-card-title>
-    </mat-card-header>
+  <!-- Add Product Button -->
+  <mat-card class="action-card">
     <mat-card-content>
-      <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Nombre</mat-label>
-            <input matInput formControlName="nombre" placeholder="Nombre del producto" required>
-            <mat-error *ngIf="productForm.get('nombre')?.hasError('required')">
-              El nombre es requerido
-            </mat-error>
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Descripción</mat-label>
-            <textarea matInput formControlName="descripcion" placeholder="Descripción del producto" rows="3"></textarea>
-          </mat-form-field>
-        </div>
-
-        <div class="form-row three-col">
-          <mat-form-field appearance="outline">
-            <mat-label>Precio</mat-label>
-            <input matInput type="number" formControlName="precio" placeholder="0.00" required>
-            <span matTextPrefix>$&nbsp;</span>
-            <mat-error *ngIf="productForm.get('precio')?.hasError('min')">
-              El precio debe ser mayor a 0
-            </mat-error>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Stock</mat-label>
-            <input matInput type="number" formControlName="stock" placeholder="0" required>
-            <mat-error *ngIf="productForm.get('stock')?.hasError('min')">
-              El stock no puede ser negativo
-            </mat-error>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Stock Mínimo</mat-label>
-            <input matInput type="number" formControlName="stockMinimo" placeholder="0">
-          </mat-form-field>
-        </div>
-
-        <div class="form-row two-col">
-          <mat-form-field appearance="outline">
-            <mat-label>Categoría</mat-label>
-            <mat-select formControlName="categoriaId">
-              <mat-option [value]="null">Ninguna</mat-option>
-              <mat-option *ngFor="let cat of categorias" [value]="cat.id">{{ cat.nombre }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Código de Barras</mat-label>
-            <input matInput formControlName="codigoBarras" placeholder="Código de barras">
-          </mat-form-field>
-        </div>
-
-        <div class="form-row two-col">
-          <mat-form-field appearance="outline">
-            <mat-label>Precio de Compra</mat-label>
-            <input matInput type="number" formControlName="precioCompra" placeholder="0.00">
-            <span matTextPrefix>$&nbsp;</span>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Margen de Ganancia (%)</mat-label>
-            <input matInput type="number" formControlName="margenGanancia" placeholder="0">
-            <span matTextSuffix>%</span>
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>URL de Imagen</mat-label>
-            <input matInput formControlName="imagenUrl" placeholder="https://...">
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-slide-toggle formControlName="activo" color="primary">
-            Producto Activo
-          </mat-slide-toggle>
-        </div>
-
-        <div class="form-actions">
-          <button mat-raised-button type="submit" color="primary" [disabled]="!productForm.valid || loading">
-            <mat-icon>{{ isEditing ? 'save' : 'add' }}</mat-icon>
-            {{ isEditing ? 'Actualizar' : 'Crear' }} Producto
-          </button>
-          <button mat-raised-button type="button" (click)="cancelEdit()" *ngIf="isEditing">
-            <mat-icon>cancel</mat-icon>
-            Cancelar
-          </button>
-        </div>
-      </form>
+      <div class="action-buttons">
+        <button mat-raised-button color="primary" (click)="openProductModal()">
+          <mat-icon>add</mat-icon>
+          Nuevo Producto
+        </button>
+      </div>
     </mat-card-content>
   </mat-card>
 

@@ -15,10 +15,18 @@
   }
 }
 
-.form-card,
+.action-card,
 .filters-card,
 .table-card {
   margin-bottom: 20px;
+}
+
+.action-card {
+  .action-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-start;
+  }
 }
 
 .form-row {
@@ -37,6 +45,14 @@
   .full-width {
     grid-column: 1 / -1;
   }
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
 }
 
 .form-actions {

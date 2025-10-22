@@ -7,6 +7,11 @@ using jam_POS.Infrastructure.Data;
 using jam_POS.Infrastructure.Services;
 using jam_POS.Application.Services;
 using jam_POS.API.Middleware;
+using jam_POS.Application.DTOs.Common;
+using jam_POS.Application.Interfaces;
+using Amazon.S3;
+using Amazon;
+using Microsoft.AspNetCore.Http.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +53,35 @@ builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 
 // ============================================
+// 📁 R2 FILE STORAGE SERVICES
+// ============================================
+
+// R2 Configuration
+builder.Services.Configure<R2StorageSettings>(builder.Configuration.GetSection("R2Storage"));
+
+// AWS S3 Client for R2 (Cloudflare R2 is S3-compatible)
+var r2Settings = builder.Configuration.GetSection("R2Storage").Get<R2StorageSettings>();
+if (r2Settings != null && !string.IsNullOrEmpty(r2Settings.AccountId))
+{
+    // Create S3 Config for R2
+    var s3Config = new AmazonS3Config
+    {
+        ServiceURL = $"https://{r2Settings.AccountId}.r2.cloudflarestorage.com",
+        ForcePathStyle = true,
+        AuthenticationRegion = "auto", // R2 uses auto region
+        SignatureVersion = "4"
+    };
+    
+    builder.Services.AddSingleton<IAmazonS3>(provider =>
+    {
+        return new AmazonS3Client(r2Settings.AccessKeyId, r2Settings.SecretAccessKey, s3Config);
+    });
+
+    // File Storage Service
+    builder.Services.AddScoped<IFileStorageService, jam_POS.Application.Services.R2FileStorageService>();
+}
+
+// ============================================
 // 🔐 JWT Authentication
 // ============================================
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -84,6 +118,15 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod()
               .AllowCredentials();
     });
+});
+
+// Configure form options for file uploads
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 10485760; // 10MB
+    options.ValueLengthLimit = int.MaxValue;
+    options.ValueCountLimit = int.MaxValue;
+    options.KeyLengthLimit = int.MaxValue;
 });
 
 // ============================================

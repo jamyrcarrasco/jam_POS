@@ -359,13 +359,7 @@ export class SalesPOSComponent implements OnInit {
       }))
     };
 
-    console.log('Processing sale with request:', {
-      cartTotal: this.cartTotal,
-      paymentsTotal: this.payments.reduce((sum, p) => sum + p.monto, 0),
-      remainingAmount: this.remainingAmount,
-      payments: this.payments,
-      saleRequest: saleRequest
-    });
+    // Processing sale
 
     this.saleService.createSale(saleRequest).subscribe({
       next: (sale) => {
@@ -455,12 +449,6 @@ export class SalesPOSComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result: CashPaymentResult | null) => {
       if (result) {
         // Agregar el pago en efectivo - el monto debe ser el total de la venta, no el monto recibido
-        console.log('Cash payment debug:', {
-          amountReceived: result.amountReceived,
-          change: result.change,
-          remainingAmount: this.remainingAmount,
-          cartTotal: this.cartTotal
-        });
 
         const newPayment: Payment = {
           id: 0,
@@ -471,10 +459,8 @@ export class SalesPOSComponent implements OnInit {
           createdAt: new Date()
         };
 
-        console.log('Payment to add:', newPayment);
         this.payments.push(newPayment);
         this.recalculateCartTotals();
-        console.log('After adding payment - remainingAmount:', this.remainingAmount);
 
         // Mostrar mensaje del cambio
         if (result.change > 0) {

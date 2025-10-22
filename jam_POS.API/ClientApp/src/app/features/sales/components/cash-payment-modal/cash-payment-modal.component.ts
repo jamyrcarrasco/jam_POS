@@ -79,7 +79,6 @@ export class CashPaymentModalComponent implements OnInit {
 
   isValidPayment(): boolean {
     const amountReceived = this.cashForm.get('amountReceived')?.value;
-    console.log("amountReceived", amountReceived);
     
     return amountReceived !== null && amountReceived !== undefined && amountReceived >= this.data.totalAmount;
   }

@@ -11,9 +11,11 @@ import { RoleGuard } from './app/core/guards/role.guard';
 import { AuthInterceptor } from './app/core/interceptors/auth.interceptor';
 import { ErrorInterceptor } from './app/core/interceptors/error.interceptor';
 import { AuthService } from './app/core/services/auth.service';
+import { FileUploadService } from './app/core/services/file-upload.service';
 
 const providers = [
   AuthService,
+  FileUploadService,
   AuthGuard,
   RoleGuard,
   { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
@@ -65,4 +67,6 @@ if (environment.production) {
 }
 
 bootstrapApplication(AppComponent, { providers })
-  .catch(err => console.log(err));
+  .catch(err => {
+    // Bootstrap error handling
+  });
