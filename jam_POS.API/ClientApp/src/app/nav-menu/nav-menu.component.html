@@ -24,8 +24,12 @@
         <mat-icon>people</mat-icon>
         Clientes
       </a>
-      <a mat-button [routerLink]="['/fetch-data']" routerLinkActive="active">
-        <mat-icon>assessment</mat-icon>
+      <a
+        mat-button
+        *ngIf="hasRole('SuperAdmin')"
+        [routerLink]="['/reportes']"
+        routerLinkActive="active">
+        <mat-icon>analytics</mat-icon>
         Reportes
       </a>
       <a mat-button [routerLink]="['/configuraciones']" routerLinkActive="active">
@@ -108,8 +112,12 @@
         <mat-icon matListItemIcon>people</mat-icon>
         <span matListItemTitle>Clientes</span>
       </a>
-      <a mat-list-item [routerLink]="['/fetch-data']" (click)="collapse()">
-        <mat-icon matListItemIcon>assessment</mat-icon>
+      <a
+        mat-list-item
+        *ngIf="hasRole('SuperAdmin')"
+        [routerLink]="['/reportes']"
+        (click)="collapse()">
+        <mat-icon matListItemIcon>analytics</mat-icon>
         <span matListItemTitle>Reportes</span>
       </a>
       <a mat-list-item [routerLink]="['/configuraciones']" (click)="collapse()">
