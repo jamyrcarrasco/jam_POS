@@ -1,4 +1,19 @@
 <div class="products-container">
+  <!-- Breadcrumbs -->
+  <nav class="breadcrumb-nav" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/dashboard']">
+          <mat-icon>home</mat-icon>
+          Inicio
+        </a>
+      </li>
+      <li class="breadcrumb-item active">
+        <span>Productos</span>
+      </li>
+    </ol>
+  </nav>
+
   <!-- Header -->
   <mat-card class="header-card">
     <mat-card-header>
@@ -110,6 +125,23 @@
         </div>
 
         <table mat-table [dataSource]="products" matSort (matSortChange)="onSortChange($event)" *ngIf="!loading">
+          <!-- Imagen Column -->
+          <ng-container matColumnDef="imagen">
+            <th mat-header-cell *matHeaderCellDef> Imagen </th>
+            <td mat-cell *matCellDef="let product">
+              <div class="product-image">
+                <img *ngIf="product.imagenUrl" 
+                     [src]="product.imagenUrl" 
+                     [alt]="product.nombre"
+                     class="product-img"
+                     (error)="onImageError($event)">
+                <div *ngIf="!product.imagenUrl" class="no-image">
+                  <mat-icon>image_not_supported</mat-icon>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
           <!-- Nombre Column -->
           <ng-container matColumnDef="nombre">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Nombre </th>

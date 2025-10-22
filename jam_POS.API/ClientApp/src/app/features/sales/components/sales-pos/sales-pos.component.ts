@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -29,6 +30,7 @@ import { CashPaymentModalComponent, CashPaymentData, CashPaymentResult } from '.
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -477,5 +479,15 @@ export class SalesPOSComponent implements OnInit {
         }
       }
     });
+  }
+
+  onImageError(event: any): void {
+    // Hide the broken image and show the no-image placeholder
+    event.target.style.display = 'none';
+    const parent = event.target.parentElement;
+    const noImageDiv = parent.querySelector('.no-image');
+    if (noImageDiv) {
+      noImageDiv.style.display = 'flex';
+    }
   }
 }

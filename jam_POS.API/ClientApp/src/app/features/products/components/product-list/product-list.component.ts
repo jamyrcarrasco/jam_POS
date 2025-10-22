@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -32,6 +33,7 @@ import { ProductImportResult } from '../../models/product-import-result.model';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
@@ -57,7 +59,7 @@ export class ProductListComponent implements OnInit {
   pagedResult: PagedResult<Product> | null = null;
   filterForm: FormGroup;
   categorias: any[] = [];
-  displayedColumns: string[] = ['nombre', 'descripcion', 'precio', 'stock', 'categoriaNombre', 'activo', 'acciones'];
+  displayedColumns: string[] = ['imagen', 'nombre', 'descripcion', 'precio', 'stock', 'categoriaNombre', 'activo', 'acciones'];
   loading = false;
   showFilters = false;
 
@@ -278,6 +280,16 @@ export class ProductListComponent implements OnInit {
         });
       }
     });
+  }
+
+  onImageError(event: any): void {
+    // Hide the broken image and show the no-image placeholder
+    event.target.style.display = 'none';
+    const parent = event.target.parentElement;
+    const noImageDiv = parent.querySelector('.no-image');
+    if (noImageDiv) {
+      noImageDiv.style.display = 'flex';
+    }
   }
 
 }

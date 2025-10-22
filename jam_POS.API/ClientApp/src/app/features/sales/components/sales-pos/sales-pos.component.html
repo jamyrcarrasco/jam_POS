@@ -1,4 +1,19 @@
 <div class="sales-pos-container">
+  <!-- Breadcrumbs -->
+  <nav class="breadcrumb-nav" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/dashboard']">
+          <mat-icon>home</mat-icon>
+          Inicio
+        </a>
+      </li>
+      <li class="breadcrumb-item active">
+        <span>Ventas</span>
+      </li>
+    </ol>
+  </nav>
+
   <!-- Header -->
   <div class="header">
     <div class="header-info">
@@ -48,6 +63,16 @@
               class="product-card" 
               *ngFor="let product of filteredProducts; trackBy: trackByProductId"
               (click)="addProductToCart(product)">
+              <div class="product-image">
+                <img *ngIf="product.imagenUrl" 
+                     [src]="product.imagenUrl" 
+                     [alt]="product.nombre"
+                     class="product-img"
+                     (error)="onImageError($event)">
+                <div *ngIf="!product.imagenUrl" class="no-image">
+                  <mat-icon>image_not_supported</mat-icon>
+                </div>
+              </div>
               <div class="product-info">
                 <h4>{{ product.nombre }}</h4>
                 <p class="product-code" *ngIf="product.codigoBarras">{{ product.codigoBarras }}</p>
