@@ -12,6 +12,15 @@
   <mat-card class="action-card">
     <mat-card-content>
       <div class="action-buttons">
+        <button mat-raised-button type="button" class="excel-button" (click)="openImportModal()">
+          <mat-icon>upload_file</mat-icon>
+          Importar productos
+        </button>
+        <button mat-stroked-button type="button" class="template-button" (click)="downloadTemplate()">
+          <mat-icon>download</mat-icon>
+          Descargar plantilla
+        </button>
+        <span class="action-spacer"></span>
         <button mat-raised-button color="primary" (click)="openProductModal()">
           <mat-icon>add</mat-icon>
           Nuevo Producto

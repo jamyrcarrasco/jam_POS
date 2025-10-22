@@ -1,3 +1,5 @@
+using System.IO;
+using System.Threading;
 using jam_POS.Application.DTOs.Requests;
 using jam_POS.Application.DTOs.Responses;
 using jam_POS.Application.DTOs.Common;
@@ -13,5 +15,7 @@ namespace jam_POS.Application.Services
         Task<bool> DeleteProductoAsync(int id);
         Task<bool> ProductoExistsAsync(int id);
         Task<IEnumerable<string>> GetCategoriasAsync();
+        Task<byte[]> ExportProductosTemplateAsync(CancellationToken cancellationToken = default);
+        Task<ProductoImportResult> ImportProductosAsync(Stream fileStream, string fileName, CancellationToken cancellationToken = default);
     }
 }

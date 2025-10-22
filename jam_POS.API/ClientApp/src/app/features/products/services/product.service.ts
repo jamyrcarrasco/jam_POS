@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { Product, ProductFilter } from '../models/product.model';
+import { ProductImportResult } from '../models/product-import-result.model';
 import { PagedResult } from '../../../core/models/pagination.model';
 
 @Injectable({
@@ -57,5 +58,15 @@ export class ProductService {
 
   getCategorias(): Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrl}/categorias`);
+  }
+
+  downloadTemplate(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/plantilla`, { responseType: 'blob' });
+  }
+
+  importProducts(file: File): Observable<ProductImportResult> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ProductImportResult>(`${this.apiUrl}/importar`, formData);
   }
 }

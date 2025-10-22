@@ -1,0 +1,91 @@
+<div class="import-modal">
+  <h2 mat-dialog-title>Importar productos</h2>
+  <mat-dialog-content>
+    <ng-container *ngIf="!importResult; else resultTemplate">
+      <p class="description">
+        Selecciona un archivo <strong>.xlsx</strong> o <strong>.csv</strong> utilizando la plantilla disponible para cargar o actualizar productos masivamente.
+      </p>
+
+      <div class="file-input-group">
+        <input
+          id="product-import-file"
+          type="file"
+          accept=".xlsx,.xls,.csv"
+          (change)="onFileSelected($event)"
+          [disabled]="uploadInProgress"
+        />
+        <label class="file-label" [class.disabled]="uploadInProgress" for="product-import-file">
+          <mat-icon>upload_file</mat-icon>
+          <span>{{ selectedFile ? 'Cambiar archivo' : 'Seleccionar archivo' }}</span>
+        </label>
+      </div>
+
+      <div class="file-details" *ngIf="selectedFile">
+        <mat-icon>description</mat-icon>
+        <span class="file-name" [title]="selectedFile.name">{{ selectedFile.name }}</span>
+        <span class="file-size">{{ (selectedFile.size / 1024) | number:'1.0-0' }} KB</span>
+      </div>
+
+      <div class="helper-actions">
+        <button mat-stroked-button color="primary" type="button" (click)="downloadTemplate()" [disabled]="downloadInProgress || uploadInProgress">
+          <mat-icon>download</mat-icon>
+          Descargar plantilla
+        </button>
+        <span class="helper-text">Respeta los encabezados: Nombre, Descripcion, Precio, Stock, Categoria, CodigoBarras, PrecioCompra, MargenGanancia, StockMinimo y Activo.</span>
+      </div>
+
+      <div class="spinner-wrapper" *ngIf="uploadInProgress">
+        <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+      </div>
+    </ng-container>
+
+    <ng-template #resultTemplate>
+      <div class="result-summary">
+        <mat-icon class="result-icon" color="primary">assignment_turned_in</mat-icon>
+        <h3>Importación completada</h3>
+        <p class="summary">
+          Se procesaron {{ importResult?.totalRows }} fila(s). Nuevos: {{ importResult?.createdCount }} · Actualizados: {{ importResult?.updatedCount }}.
+        </p>
+        <p *ngIf="importResult?.failedCount" class="summary warning">
+          {{ importResult?.failedCount }} fila(s) no se importaron por errores.
+        </p>
+
+        <div *ngIf="importResult?.errors?.length" class="error-list">
+          <h4>Detalles de errores</h4>
+          <ul>
+            <li *ngFor="let error of importResult?.errors">{{ error }}</li>
+          </ul>
+        </div>
+
+        <p class="hint" *ngIf="importResult && !importResult.failedCount">
+          ¡Todo listo! Los productos se actualizaron correctamente.
+        </p>
+      </div>
+    </ng-template>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="onCancel()" [disabled]="uploadInProgress">Cancelar</button>
+    <button
+      mat-raised-button
+      color="primary"
+      type="button"
+      (click)="onUpload()"
+      *ngIf="!importResult"
+      [disabled]="uploadInProgress || !selectedFile"
+    >
+      <mat-icon>cloud_upload</mat-icon>
+      Importar
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      type="button"
+      (click)="onFinish()"
+      *ngIf="importResult"
+    >
+      <mat-icon>check_circle</mat-icon>
+      Cerrar y actualizar
+    </button>
+  </mat-dialog-actions>
+</div>
