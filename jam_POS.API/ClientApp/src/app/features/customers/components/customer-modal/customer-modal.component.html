@@ -1,0 +1,112 @@
+<div class="customer-modal">
+  <div mat-dialog-title class="modal-header">
+    <h2>{{ data.isEdit ? 'Editar Cliente' : 'Nuevo Cliente' }}</h2>
+    <button mat-icon-button (click)="onCancel()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div mat-dialog-content class="modal-content">
+    <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
+      <div class="form-row two-col">
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre</mat-label>
+          <input matInput formControlName="nombre" placeholder="Juan" required>
+          <mat-icon matPrefix>person</mat-icon>
+          <mat-error *ngIf="customerForm.get('nombre')?.hasError('required')">
+            El nombre es requerido
+          </mat-error>
+          <mat-error *ngIf="customerForm.get('nombre')?.hasError('maxlength')">
+            Máximo 100 caracteres
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Apellido</mat-label>
+          <input matInput formControlName="apellido" placeholder="Pérez">
+          <mat-error *ngIf="customerForm.get('apellido')?.hasError('maxlength')">
+            Máximo 100 caracteres
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row two-col">
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" formControlName="email" placeholder="cliente@ejemplo.com">
+          <mat-icon matPrefix>email</mat-icon>
+          <mat-error *ngIf="customerForm.get('email')?.hasError('email')">
+            Email no válido
+          </mat-error>
+          <mat-error *ngIf="customerForm.get('email')?.hasError('maxlength')">
+            Máximo 150 caracteres
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Teléfono</mat-label>
+          <input matInput formControlName="telefono" placeholder="809-555-1234">
+          <mat-icon matPrefix>call</mat-icon>
+          <mat-error *ngIf="customerForm.get('telefono')?.hasError('maxlength')">
+            Máximo 50 caracteres
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row two-col">
+        <mat-form-field appearance="outline">
+          <mat-label>Documento</mat-label>
+          <input matInput formControlName="documento" placeholder="001-0000000-1">
+          <mat-icon matPrefix>badge</mat-icon>
+          <mat-error *ngIf="customerForm.get('documento')?.hasError('maxlength')">
+            Máximo 50 caracteres
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha de nacimiento</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="fechaNacimiento" placeholder="dd/mm/aaaa">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Dirección</mat-label>
+          <textarea matInput formControlName="direccion" rows="2" placeholder="Calle, número, ciudad"></textarea>
+          <mat-error *ngIf="customerForm.get('direccion')?.hasError('maxlength')">
+            Máximo 300 caracteres
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Notas</mat-label>
+          <textarea matInput formControlName="notas" rows="3" placeholder="Comentarios adicionales"></textarea>
+          <mat-error *ngIf="customerForm.get('notas')?.hasError('maxlength')">
+            Máximo 500 caracteres
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-slide-toggle formControlName="activo" color="primary">
+          Cliente activo
+        </mat-slide-toggle>
+      </div>
+    </form>
+  </div>
+
+  <div mat-dialog-actions class="modal-actions">
+    <button mat-button (click)="onCancel()" [disabled]="loading">
+      Cancelar
+    </button>
+    <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="!customerForm.valid || loading">
+      <mat-icon *ngIf="loading" class="spinner-icon">refresh</mat-icon>
+      <mat-icon *ngIf="!loading">{{ data.isEdit ? 'save' : 'person_add' }}</mat-icon>
+      {{ data.isEdit ? 'Actualizar' : 'Crear' }} Cliente
+    </button>
+  </div>
+</div>

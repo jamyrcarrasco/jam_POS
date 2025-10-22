@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,14 +14,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { CustomerService } from '../../services/customer.service';
-import { Customer, CreateCustomerDto, UpdateCustomerDto, CustomerFilter } from '../../models/customer.model';
+import { Customer, CustomerFilter } from '../../models/customer.model';
 import { PagedResult } from '../../../../core/models/pagination.model';
+import { CustomerModalComponent, CustomerModalData } from '../customer-modal/customer-modal.component';
 
 @Component({
   selector: 'app-customer-list',
@@ -42,11 +41,8 @@ import { PagedResult } from '../../../../core/models/pagination.model';
     MatPaginatorModule,
     MatSortModule,
     MatSelectModule,
-    MatSlideToggleModule,
     MatChipsModule,
-    MatDividerModule,
-    MatDatepickerModule,
-    MatNativeDateModule
+    MatDividerModule
   ],
   templateUrl: './customer-list.component.html',
   styleUrls: ['./customer-list.component.scss']
@@ -54,12 +50,7 @@ import { PagedResult } from '../../../../core/models/pagination.model';
 export class CustomerListComponent implements OnInit {
   customers: Customer[] = [];
   pagedResult: PagedResult<Customer> | null = null;
-  customerForm: FormGroup;
   filterForm: FormGroup;
-
-  isEditing = false;
-  editingId: number | null = null;
-  showForm = false;
   loading = false;
 
   displayedColumns: string[] = ['nombre', 'contacto', 'documento', 'fechaNacimiento', 'activo', 'acciones'];
@@ -73,20 +64,9 @@ export class CustomerListComponent implements OnInit {
   constructor(
     private customerService: CustomerService,
     private fb: FormBuilder,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
-    this.customerForm = this.fb.group({
-      nombre: ['', [Validators.required, Validators.maxLength(100)]],
-      apellido: ['', [Validators.maxLength(100)]],
-      email: ['', [Validators.email, Validators.maxLength(150)]],
-      telefono: ['', [Validators.maxLength(50)]],
-      documento: ['', [Validators.maxLength(50)]],
-      direccion: ['', [Validators.maxLength(300)]],
-      notas: ['', [Validators.maxLength(500)]],
-      fechaNacimiento: [null],
-      activo: [true]
-    });
-
     this.filterForm = this.fb.group({
       searchTerm: [''],
       activo: [null]
@@ -146,61 +126,29 @@ export class CustomerListComponent implements OnInit {
     });
   }
 
-  toggleForm(): void {
-    this.showForm = !this.showForm;
-    if (!this.showForm) {
-      this.resetForm();
-    }
-  }
+  openCustomerModal(customer?: Customer): void {
+    const dialogData: CustomerModalData = {
+      customer: customer,
+      isEdit: !!customer
+    };
 
-  editCustomer(customer: Customer): void {
-    this.isEditing = true;
-    this.editingId = customer.id;
-    this.showForm = true;
+    const dialogRef = this.dialog.open(CustomerModalComponent, {
+      data: dialogData,
+      width: '600px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      disableClose: false
+    });
 
-    this.customerForm.patchValue({
-      nombre: customer.nombre,
-      apellido: customer.apellido || '',
-      email: customer.email || '',
-      telefono: customer.telefono || '',
-      documento: customer.documento || '',
-      direccion: customer.direccion || '',
-      notas: customer.notas || '',
-      fechaNacimiento: customer.fechaNacimiento ? new Date(customer.fechaNacimiento) : null,
-      activo: customer.activo
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.success) {
+        this.loadCustomers();
+      }
     });
   }
 
-  cancelEdit(): void {
-    this.resetForm();
-    this.showForm = false;
-  }
-
-  onSubmit(): void {
-    if (this.customerForm.invalid) {
-      this.snackBar.open('Por favor complete los campos requeridos', 'Cerrar', { duration: 3000 });
-      return;
-    }
-
-    const formValue = this.customerForm.value;
-    const payload: CreateCustomerDto = {
-      nombre: formValue.nombre,
-      apellido: formValue.apellido || null,
-      email: formValue.email || null,
-      telefono: formValue.telefono || null,
-      documento: formValue.documento || null,
-      direccion: formValue.direccion || null,
-      notas: formValue.notas || null,
-      fechaNacimiento: formValue.fechaNacimiento ? new Date(formValue.fechaNacimiento).toISOString() : null,
-      activo: formValue.activo ?? true
-    };
-
-    if (this.isEditing && this.editingId) {
-      const updatePayload: UpdateCustomerDto = { ...payload, id: this.editingId };
-      this.updateCustomer(updatePayload);
-    } else {
-      this.createCustomer(payload);
-    }
+  editCustomer(customer: Customer): void {
+    this.openCustomerModal(customer);
   }
 
   deleteCustomer(id: number): void {
@@ -236,59 +184,6 @@ export class CustomerListComponent implements OnInit {
     return isActive ? 'primary' : 'warn';
   }
 
-  private createCustomer(payload: CreateCustomerDto): void {
-    this.loading = true;
-    this.customerService.createCustomer(payload).subscribe({
-      next: () => {
-        this.snackBar.open('Cliente creado correctamente', 'Cerrar', { duration: 3000 });
-        this.loadCustomers();
-        this.resetForm();
-        this.showForm = false;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error al crear cliente:', error);
-        const errorMsg = error.error?.message || 'Error al crear el cliente';
-        this.snackBar.open(errorMsg, 'Cerrar', { duration: 3000 });
-        this.loading = false;
-      }
-    });
-  }
-
-  private updateCustomer(payload: UpdateCustomerDto): void {
-    this.loading = true;
-    this.customerService.updateCustomer(payload.id, payload).subscribe({
-      next: () => {
-        this.snackBar.open('Cliente actualizado correctamente', 'Cerrar', { duration: 3000 });
-        this.loadCustomers();
-        this.resetForm();
-        this.showForm = false;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error al actualizar cliente:', error);
-        const errorMsg = error.error?.message || 'Error al actualizar el cliente';
-        this.snackBar.open(errorMsg, 'Cerrar', { duration: 3000 });
-        this.loading = false;
-      }
-    });
-  }
-
-  private resetForm(): void {
-    this.customerForm.reset({
-      nombre: '',
-      apellido: '',
-      email: '',
-      telefono: '',
-      documento: '',
-      direccion: '',
-      notas: '',
-      fechaNacimiento: null,
-      activo: true
-    });
-    this.isEditing = false;
-    this.editingId = null;
-  }
 
   private mapSortField(active: string | undefined): string {
     switch (active) {

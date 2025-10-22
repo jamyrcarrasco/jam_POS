@@ -1,0 +1,135 @@
+.customer-modal {
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 1.5rem 0 1.5rem;
+    margin: 0;
+
+    h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .close-button {
+      color: #666;
+      
+      &:hover {
+        color: #333;
+      }
+    }
+  }
+
+  .modal-content {
+    padding: 1.5rem;
+    max-height: 70vh;
+    overflow-y: auto;
+
+    .form-row {
+      display: grid;
+      gap: 1rem;
+      margin-bottom: 1rem;
+
+      &.two-col {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .full-width {
+        grid-column: 1 / -1;
+      }
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #333;
+      font-size: 0.875rem;
+    }
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
+    margin: 0;
+
+    button {
+      min-width: 120px;
+    }
+
+    .spinner-icon {
+      animation: spin 1s linear infinite;
+    }
+  }
+}
+
+// Form field overrides
+::ng-deep {
+  .customer-modal {
+    .mat-mdc-form-field {
+      width: 100%;
+    }
+
+    .mat-mdc-dialog-content {
+      max-height: 70vh;
+    }
+
+    .mat-mdc-dialog-actions {
+      padding: 1rem 1.5rem 1.5rem 1.5rem;
+    }
+  }
+}
+
+// Spinner animation
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .customer-modal {
+    .modal-content {
+      padding: 1rem;
+
+      .form-row {
+        &.two-col {
+          grid-template-columns: 1fr;
+        }
+      }
+    }
+
+    .modal-actions {
+      flex-direction: column;
+      padding: 1rem;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .customer-modal {
+    .modal-header {
+      padding: 1rem 1rem 0 1rem;
+
+      h2 {
+        font-size: 1.25rem;
+      }
+    }
+
+    .modal-content {
+      padding: 0.75rem;
+    }
+
+    .modal-actions {
+      padding: 0.75rem;
+    }
+  }
+}

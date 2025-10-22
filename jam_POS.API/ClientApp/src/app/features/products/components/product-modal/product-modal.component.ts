@@ -89,11 +89,11 @@ export class ProductModalComponent implements OnInit, OnDestroy {
   }
 
   private loadCategorias(): void {
-    this.categoryService.getCategories()
+    this.categoryService.getActiveCategories()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response: any) => {
-          this.categorias = response.data || [];
+        next: (categorias: any[]) => {
+          this.categorias = categorias || [];
         },
         error: (error: any) => {
           console.error('Error loading categories:', error);
