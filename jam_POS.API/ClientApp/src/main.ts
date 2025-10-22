@@ -51,6 +51,11 @@ const providers = [
         canActivate: [AuthGuard]
       },
       {
+        path: 'reportes',
+        loadChildren: () => import('./app/features/reports/reports.module').then(m => m.ReportsModule),
+        canActivate: [AuthGuard]
+      },
+      {
         path: 'dashboard',
         loadComponent: () => import('./app/dashboard/dashboard.component').then(m => m.DashboardComponent),
         canActivate: [AuthGuard]
