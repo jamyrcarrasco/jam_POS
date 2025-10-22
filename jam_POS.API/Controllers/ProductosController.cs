@@ -1,8 +1,11 @@
+using System.IO;
+using System.Threading;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using jam_POS.Application.DTOs.Common;
 using jam_POS.Application.DTOs.Requests;
 using jam_POS.Application.DTOs.Responses;
-using jam_POS.Application.DTOs.Common;
 using jam_POS.Application.Services;
 
 namespace jam_POS.API.Controllers
@@ -34,6 +37,23 @@ namespace jam_POS.API.Controllers
             {
                 _logger.LogError(ex, "Error recuperando productos");
                 return StatusCode(500, new ErrorResponse { Message = "Ocurrió un error al recuperar los productos" });
+            }
+        }
+
+        // GET: api/productos/plantilla
+        [HttpGet("plantilla")]
+        public async Task<IActionResult> DescargarPlantilla(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var fileBytes = await _productoService.ExportProductosTemplateAsync(cancellationToken);
+                var fileName = $"plantilla_productos_{DateTime.UtcNow:yyyyMMddHHmmss}.xlsx";
+                return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating products template");
+                return StatusCode(500, new ErrorResponse { Message = "Ocurrió un error al generar la plantilla de productos" });
             }
         }
 
@@ -121,6 +141,43 @@ namespace jam_POS.API.Controllers
             {
                 _logger.LogError(ex, "Error creando producto");
                 return StatusCode(500, new ErrorResponse { Message = "Ocurrió un error al crear el producto" });
+            }
+        }
+
+        // POST: api/productos/importar
+        [HttpPost("importar")]
+        [ProducesResponseType(typeof(ProductoImportResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<ProductoImportResult>> ImportProductos([FromForm] IFormFile file, CancellationToken cancellationToken)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new ErrorResponse { Message = "Debe adjuntar un archivo válido para importar." });
+            }
+
+            try
+            {
+                await using var stream = new MemoryStream();
+                await file.CopyToAsync(stream, cancellationToken);
+                stream.Position = 0;
+
+                var result = await _productoService.ImportProductosAsync(stream, file.FileName, cancellationToken);
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Invalid products import file");
+                return BadRequest(new ErrorResponse { Message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, "Invalid products import parameters");
+                return BadRequest(new ErrorResponse { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error importing products");
+                return StatusCode(500, new ErrorResponse { Message = "Ocurrió un error al importar los productos" });
             }
         }
 

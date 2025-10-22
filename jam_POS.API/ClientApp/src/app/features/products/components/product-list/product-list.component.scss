@@ -26,6 +26,34 @@
     display: flex;
     gap: 12px;
     justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+
+    .action-spacer {
+      flex: 1 1 auto;
+    }
+
+    button mat-icon {
+      margin-right: 6px;
+    }
+
+    .excel-button {
+      background-color: #217346;
+      color: #fff;
+
+      &:hover {
+        background-color: #1a5a39;
+      }
+    }
+
+    .template-button {
+      border-color: #217346;
+      color: #217346;
+
+      &:hover {
+        background-color: rgba(33, 115, 70, 0.08);
+      }
+    }
   }
 }
 
@@ -157,6 +185,22 @@
 @media (max-width: 768px) {
   .products-container {
     padding: 12px;
+  }
+
+  .action-card {
+    .action-buttons {
+      flex-direction: column;
+      align-items: stretch;
+
+      .action-spacer {
+        display: none;
+      }
+
+      button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
   }
 
   .form-row {
