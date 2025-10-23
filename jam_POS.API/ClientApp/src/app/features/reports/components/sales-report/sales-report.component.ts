@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -34,6 +35,7 @@ interface MonthOption {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterModule,
     MatCardModule,
     MatFormFieldModule,
     MatSelectModule,
@@ -141,7 +143,7 @@ export class SalesReportComponent implements OnInit, OnDestroy {
   }
 
   get hasData(): boolean {
-    return !!this.report && (this.report.ventas.length > 0 || this.report.productos.length > 0);
+    return !!this.report && (this.report.ventas?.length > 0 || this.report.productos?.length > 0);
   }
 
   get selectedProductName(): string | null {
@@ -210,6 +212,7 @@ export class SalesReportComponent implements OnInit, OnDestroy {
           this.loading = false;
         },
         error: (error) => {
+          console.log(error);
           console.error('Error loading sales report', error);
           this.loading = false;
           this.report = null;

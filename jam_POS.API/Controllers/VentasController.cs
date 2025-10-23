@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using jam_POS.Application.DTOs.Requests;
-using jam_POS.Application.DTOs.Responses;
-using jam_POS.Application.Services;
+using jam_POS.API.DTOs;
+using jam_POS.API.Services;
 
 namespace jam_POS.API.Controllers
 {
@@ -45,8 +44,8 @@ namespace jam_POS.API.Controllers
 
         // GET: api/ventas/reportes
         [HttpGet("reportes")]
-        [ProducesResponseType(typeof(SalesReportResponse), StatusCodes.Status200OK)]
-        public async Task<ActionResult<SalesReportResponse>> GetReporteVentas([FromQuery] SalesReportFilterRequest filter)
+        [ProducesResponseType(typeof(SalesReportApiResponse), StatusCodes.Status200OK)]
+        public async Task<ActionResult<SalesReportApiResponse>> GetReporteVentas([FromQuery] SalesReportFilterRequest filter)
         {
             try
             {

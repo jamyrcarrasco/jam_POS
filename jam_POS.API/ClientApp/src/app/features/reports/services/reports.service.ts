@@ -39,6 +39,6 @@ export class ReportsService {
       params = params.set('categoryId', filter.categoryId.toString());
     }
 
-    return this.http.get<SalesReport>(`${this.apiUrl}/ventas`, { params });
+    return this.http.get<SalesReport>(`${this.apiUrl}/reportes`, { params });
   }
 }
