@@ -45,6 +45,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
             npgsqlOptions.EnableRetryOnFailure();
         }));
 
+// HttpContextAccessor para acceder al contexto HTTP en servicios
+builder.Services.AddHttpContextAccessor();
+
 // Inyección de dependencias de servicios de aplicación
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductoService, ProductoService>();
@@ -55,6 +58,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEmpresaService, EmpresaService>();
 builder.Services.AddScoped<IImpuestoService, ImpuestoService>();
 builder.Services.AddScoped<IConfiguracionPOSService, ConfiguracionPOSService>();
+builder.Services.AddScoped<jam_POS.Application.Services.IVentaService, jam_POS.Application.Services.VentaService>();
 builder.Services.AddScoped<jam_POS.API.Services.IVentaService, jam_POS.API.Services.VentaService>();
 builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<jam_POS.API.Services.IReporteService, jam_POS.API.Services.ReporteService>();

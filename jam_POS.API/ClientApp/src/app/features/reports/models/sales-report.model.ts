@@ -31,6 +31,7 @@ export interface SalesReportProduct {
   productoId: number;
   productoNombre: string;
   categoriaNombre?: string;
+  categoriaColor?: string;
   cantidadVendida: number;
   totalVendido: number;
 }

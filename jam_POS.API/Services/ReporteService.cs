@@ -84,29 +84,29 @@ namespace jam_POS.API.Services
                 }).ToList();
 
                 // Build product sales summary
-                var productosVendidosQuery = ventas
-                    .SelectMany(v => v.VentaItems)
-                    .AsQueryable();
+                var productosVendidosEnumerable = ventas
+                    .SelectMany(v => v.VentaItems);
 
                 // Apply category filter to product summary if specified
                 if (filter.CategoryId.HasValue)
                 {
-                    productosVendidosQuery = productosVendidosQuery.Where(vi => vi.Producto!.CategoriaId == filter.CategoryId.Value);
+                    productosVendidosEnumerable = productosVendidosEnumerable.Where(vi => vi.Producto!.CategoriaId == filter.CategoryId.Value);
                 }
 
                 // Apply product filter to product summary if specified
                 if (filter.ProductId.HasValue)
                 {
-                    productosVendidosQuery = productosVendidosQuery.Where(vi => vi.ProductoId == filter.ProductId.Value);
+                    productosVendidosEnumerable = productosVendidosEnumerable.Where(vi => vi.ProductoId == filter.ProductId.Value);
                 }
 
-                var productosVendidos = productosVendidosQuery
+                var productosVendidos = productosVendidosEnumerable
                     .GroupBy(vi => new { vi.ProductoId, vi.ProductoNombre })
                     .Select(g => new SalesReportProductoApi
                     {
                         ProductoId = g.Key.ProductoId,
                         ProductoNombre = g.Key.ProductoNombre,
                         CategoriaNombre = g.First().Producto?.Categoria?.Nombre,
+                        CategoriaColor = g.First().Producto?.Categoria?.Color,
                         CantidadVendida = (int)g.Sum(vi => vi.Cantidad),
                         TotalVendido = g.Sum(vi => vi.Total)
                     })

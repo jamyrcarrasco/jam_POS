@@ -16,6 +16,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { Subject, takeUntil } from 'rxjs';
 import { ReportsService } from '../../../reports/services/reports.service';
 import { SalesReport, SalesReportFilter } from '../../../reports/models/sales-report.model';
@@ -49,7 +51,9 @@ interface MonthOption {
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatChipsModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatPaginatorModule,
+    MatAutocompleteModule
   ],
   providers: [
     { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }
@@ -82,6 +86,27 @@ export class SalesReportComponent implements OnInit, OnDestroy {
   years: number[] = [];
   categories: Category[] = [];
   products: Product[] = [];
+  filteredProducts: Product[] = [];
+
+  // Pagination properties
+  salesPageSize = 10;
+  salesPageIndex = 0;
+  productsPageSize = 10;
+  productsPageIndex = 0;
+
+  get paginatedVentas() {
+    if (!this.report?.ventas) return [];
+    const start = this.salesPageIndex * this.salesPageSize;
+    const end = start + this.salesPageSize;
+    return this.report.ventas.slice(start, end);
+  }
+
+  get paginatedProductos() {
+    if (!this.report?.productos) return [];
+    const start = this.productsPageIndex * this.productsPageSize;
+    const end = start + this.productsPageSize;
+    return this.report.productos.slice(start, end);
+  }
 
   readonly displayedSalesColumns = [
     'numeroVenta',
@@ -117,6 +142,7 @@ export class SalesReportComponent implements OnInit, OnDestroy {
       year: [today.getFullYear(), Validators.required],
       startDate: [null],
       endDate: [null],
+      productSearch: [''],
       productId: [null],
       categoryId: [null]
     });
@@ -129,6 +155,16 @@ export class SalesReportComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.updateDateValidators();
+      });
+
+    // Initialize filtered products
+    this.filteredProducts = this.products;
+
+    // Filter products when search text changes
+    this.filterForm.get('productSearch')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(value => {
+        this.filterProducts(value || '');
       });
 
     this.updateDateValidators();
@@ -185,9 +221,11 @@ export class SalesReportComponent implements OnInit, OnDestroy {
       year: today.getFullYear(),
       startDate: null,
       endDate: null,
+      productSearch: '',
       productId: null,
       categoryId: null
     });
+    this.filteredProducts = this.products;
     this.updateDateValidators();
     this.loadReport();
   }
@@ -202,6 +240,10 @@ export class SalesReportComponent implements OnInit, OnDestroy {
 
     this.loading = true;
     this.errorMessage = '';
+    
+    // Reset pagination
+    this.salesPageIndex = 0;
+    this.productsPageIndex = 0;
 
     this.reportsService.getSalesReport(filter)
       .pipe(takeUntil(this.destroy$))
@@ -241,11 +283,47 @@ export class SalesReportComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (result) => {
           this.products = result.items;
+          this.filteredProducts = this.products;
+          
+          // Initialize product search field if a product is already selected
+          const productId = this.filterForm.get('productId')?.value;
+          if (productId) {
+            const product = this.products.find(p => p.id === productId);
+            if (product) {
+              this.filterForm.patchValue({ productSearch: product.nombre }, { emitEvent: false });
+            }
+          }
         },
         error: (error) => {
           console.error('Error loading products', error);
         }
       });
+  }
+
+  private filterProducts(searchText: string): void {
+    if (!searchText || searchText.trim() === '') {
+      this.filteredProducts = this.products;
+      return;
+    }
+
+    const lowerSearchText = searchText.toLowerCase().trim();
+    this.filteredProducts = this.products.filter(product =>
+      product.nombre.toLowerCase().includes(lowerSearchText) ||
+      (product.codigoBarras && product.codigoBarras.toLowerCase().includes(lowerSearchText))
+    );
+  }
+
+  displayProductName(productId: number | null): string {
+    if (!productId) {
+      return '';
+    }
+    const product = this.products.find(p => p.id === productId);
+    return product ? product.nombre : '';
+  }
+
+  onProductSelected(event: any): void {
+    const productId = event.option.value;
+    this.filterForm.patchValue({ productId }, { emitEvent: false });
   }
 
   private buildFilterPayload(filterType: string): SalesReportFilter {
@@ -341,5 +419,31 @@ export class SalesReportComponent implements OnInit, OnDestroy {
       years.push(currentYear - i);
     }
     this.years = years;
+  }
+
+  getContrastColor(hexColor: string): string {
+    // Remove # if present
+    const hex = hexColor.replace('#', '');
+    
+    // Convert to RGB
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    
+    // Calculate luminance
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    
+    // Return black or white based on luminance
+    return luminance > 0.5 ? '#000000' : '#ffffff';
+  }
+
+  onSalesPageChange(event: PageEvent): void {
+    this.salesPageIndex = event.pageIndex;
+    this.salesPageSize = event.pageSize;
+  }
+
+  onProductsPageChange(event: PageEvent): void {
+    this.productsPageIndex = event.pageIndex;
+    this.productsPageSize = event.pageSize;
   }
 }

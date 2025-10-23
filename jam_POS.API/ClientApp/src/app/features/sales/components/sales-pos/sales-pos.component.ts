@@ -349,11 +349,14 @@ export class SalesPOSComponent implements OnInit {
         precioUnitario: item.precioUnitario,
         descuentoPorcentaje: item.descuentoPorcentaje,
         descuentoMonto: item.descuentoMonto,
+        totalImpuestos: item.totalImpuestos,
         notas: item.notas
       })),
       pagos: this.payments.map(payment => ({
         metodoPago: payment.metodoPago,
         monto: payment.monto,
+        montoRecibido: payment.montoRecibido,
+        cambioDevolver: payment.cambioDevolver,
         referencia: payment.referencia,
         banco: payment.banco,
         tipoTarjeta: payment.tipoTarjeta,
@@ -450,13 +453,15 @@ export class SalesPOSComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: CashPaymentResult | null) => {
       if (result) {
-        // Agregar el pago en efectivo - el monto debe ser el total de la venta, no el monto recibido
-
+        // Agregar el pago en efectivo con información de monto recibido y cambio
+        
         const newPayment: Payment = {
           id: 0,
           ventaId: 0,
           metodoPago: 'EFECTIVO',
-          monto: this.remainingAmount, // Usar el monto pendiente de pago, no el monto recibido
+          monto: this.remainingAmount, // Monto que se aplica a la venta
+          montoRecibido: result.amountReceived, // Monto que entregó el cliente
+          cambioDevolver: result.change > 0 ? result.change : undefined, // Cambio devuelto
           fechaPago: new Date(),
           createdAt: new Date()
         };

@@ -219,3 +219,21 @@ mat-header-row {
   }
 }
 
+// Category chip styles
+mat-chip-set {
+  mat-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+}
+
+// Paginator styles
+mat-paginator {
+  margin-top: 16px;
+}
+

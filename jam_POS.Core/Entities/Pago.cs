@@ -17,6 +17,10 @@ namespace jam_POS.Core.Entities
         [Required]
         public decimal Monto { get; set; }
 
+        // Campos para pago en efectivo con cambio
+        public decimal? MontoRecibido { get; set; } // Monto que entregó el cliente en efectivo
+        public decimal? CambioDevolver { get; set; } // Cambio que se devolvió al cliente
+
         [StringLength(100)]
         public string? Referencia { get; set; } // Número de tarjeta (parcial), transferencia, etc.
 

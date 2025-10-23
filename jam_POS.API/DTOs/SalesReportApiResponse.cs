@@ -36,6 +36,7 @@ namespace jam_POS.API.DTOs
         public int ProductoId { get; set; }
         public string ProductoNombre { get; set; } = string.Empty;
         public string? CategoriaNombre { get; set; }
+        public string? CategoriaColor { get; set; }
         public int CantidadVendida { get; set; }
         public decimal TotalVendido { get; set; }
     }

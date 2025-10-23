@@ -47,6 +47,8 @@ namespace jam_POS.Application.DTOs.Responses
         public int VentaId { get; set; }
         public string MetodoPago { get; set; } = string.Empty;
         public decimal Monto { get; set; }
+        public decimal? MontoRecibido { get; set; } // Monto que entregó el cliente en efectivo
+        public decimal? CambioDevolver { get; set; } // Cambio que se devolvió al cliente
         public string? Referencia { get; set; }
         public string? Banco { get; set; }
         public string? TipoTarjeta { get; set; }
