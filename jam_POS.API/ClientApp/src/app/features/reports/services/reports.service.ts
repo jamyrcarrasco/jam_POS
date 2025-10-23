@@ -8,7 +8,7 @@ import { SalesReport, SalesReportFilter } from '../models/sales-report.model';
   providedIn: 'root'
 })
 export class ReportsService {
-  private readonly apiUrl = `${environment.apiUrl}reportes`;
+  private readonly apiUrl = `${environment.apiUrl}ventas`;
 
   constructor(private http: HttpClient) {}
 

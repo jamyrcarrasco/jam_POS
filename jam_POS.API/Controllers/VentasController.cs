@@ -11,11 +11,16 @@ namespace jam_POS.API.Controllers
     public class VentasController : ControllerBase
     {
         private readonly IVentaService _ventaService;
+        private readonly IReporteService _reporteService;
         private readonly ILogger<VentasController> _logger;
 
-        public VentasController(IVentaService ventaService, ILogger<VentasController> logger)
+        public VentasController(
+            IVentaService ventaService,
+            IReporteService reporteService,
+            ILogger<VentasController> logger)
         {
             _ventaService = ventaService;
+            _reporteService = reporteService;
             _logger = logger;
         }
 
@@ -23,7 +28,7 @@ namespace jam_POS.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<VentaSummaryResponse>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<VentaSummaryResponse>>> GetVentas(
-            [FromQuery] int page = 1, 
+            [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10)
         {
             try
@@ -35,6 +40,27 @@ namespace jam_POS.API.Controllers
             {
                 _logger.LogError(ex, "Error recuperando ventas");
                 return StatusCode(500, new ErrorResponse { Message = "Ocurrió un error al recuperar las ventas" });
+            }
+        }
+
+        // GET: api/ventas/reportes
+        [HttpGet("reportes")]
+        [ProducesResponseType(typeof(SalesReportResponse), StatusCodes.Status200OK)]
+        public async Task<ActionResult<SalesReportResponse>> GetReporteVentas([FromQuery] SalesReportFilterRequest filter)
+        {
+            try
+            {
+                var reporte = await _reporteService.GetSalesReportAsync(filter);
+                return Ok(reporte);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ErrorResponse { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generando el reporte de ventas");
+                return StatusCode(500, new ErrorResponse { Message = "Ocurrió un error al generar el reporte de ventas" });
             }
         }
 
