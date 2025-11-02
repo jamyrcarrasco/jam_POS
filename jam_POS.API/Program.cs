@@ -48,6 +48,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // HttpContextAccessor para acceder al contexto HTTP en servicios
 builder.Services.AddHttpContextAccessor();
 
+// HttpClient Factory para servicios externos (Resend, etc.)
+builder.Services.AddHttpClient();
+
 // Inyección de dependencias de servicios de aplicación
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductoService, ProductoService>();

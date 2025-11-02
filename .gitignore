@@ -255,6 +255,8 @@ _Pvt_Extensions
 # 🔐 SECRETOS Y CONFIGURACIÓN SENSIBLE
 # ============================================
 # Nunca subir archivos con datos sensibles
+appsettings.json
+appsettings.Development.json
 appsettings.Production.json
 appsettings.Staging.json
 **/appsettings.*.local.json
