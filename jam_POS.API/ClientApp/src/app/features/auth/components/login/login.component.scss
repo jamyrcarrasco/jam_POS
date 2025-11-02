@@ -85,6 +85,32 @@
   color: #555;
 }
 
+.register-link {
+  text-align: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.register-link p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.register-link .link {
+  color: #3b82f6;
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.register-link .link:hover {
+  text-decoration: underline;
+  color: #2563eb;
+}
+
 /* Error snackbar styling */
 ::ng-deep .error-snackbar {
   background-color: #f44336 !important;
