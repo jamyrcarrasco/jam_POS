@@ -4,6 +4,8 @@ using jam_POS.Infrastructure.Data;
 using jam_POS.Core.Entities;
 using jam_POS.Application.DTOs.Requests;
 using jam_POS.Application.DTOs.Responses;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace jam_POS.Application.Services
 {
@@ -12,15 +14,18 @@ namespace jam_POS.Application.Services
         private readonly ApplicationDbContext _context;
         private readonly ILogger<VentaService> _logger;
         private readonly IConfiguracionPOSService _configuracionPOSService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public VentaService(
             ApplicationDbContext context, 
             ILogger<VentaService> logger,
-            IConfiguracionPOSService configuracionPOSService)
+            IConfiguracionPOSService configuracionPOSService,
+            IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _logger = logger;
             _configuracionPOSService = configuracionPOSService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<IEnumerable<VentaSummaryResponse>> GetVentasAsync(int page = 1, int pageSize = 10)
@@ -63,164 +68,186 @@ namespace jam_POS.Application.Services
         {
             _logger.LogInformation("Creando nueva venta");
 
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            var strategy = _context.Database.CreateExecutionStrategy();
+            return await strategy.ExecuteAsync(async () =>
             {
-                // Generar número de venta
-                var numeroVenta = await GenerarNumeroVentaAsync();
-
-                if (request.ClienteId.HasValue)
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
                 {
-                    var clienteExiste = await _context.Set<Cliente>()
-                        .AnyAsync(c => c.Id == request.ClienteId.Value);
+                    // Generar número de venta
+                    var numeroVenta = await GenerarNumeroVentaAsync();
 
-                    if (!clienteExiste)
+                    if (request.ClienteId.HasValue)
                     {
-                        throw new ArgumentException($"Cliente con ID {request.ClienteId.Value} no encontrado");
-                    }
-                }
+                        var clienteExiste = await _context.Set<Cliente>()
+                            .AnyAsync(c => c.Id == request.ClienteId.Value);
 
-                // Crear la venta
-                var venta = new Venta
-                {
-                    NumeroVenta = numeroVenta,
-                    FechaVenta = DateTime.UtcNow,
-                    Notas = request.Notas,
-                    ClienteId = request.ClienteId,
-                    UsuarioId = GetCurrentUserId(), // Implementar según tu sistema de autenticación
-                    Estado = "COMPLETADA",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                    // EmpresaId se asigna automáticamente en SaveChanges
-                };
-
-                _context.Set<Venta>().Add(venta);
-                await _context.SaveChangesAsync();
-
-                // Crear items de venta
-                decimal subtotal = 0;
-                decimal totalImpuestos = 0;
-                decimal totalDescuentos = 0;
-
-                foreach (var itemRequest in request.Items)
-                {
-                    var producto = await _context.Set<Producto>().FindAsync(itemRequest.ProductoId);
-                    if (producto == null)
-                    {
-                        throw new ArgumentException($"Producto con ID {itemRequest.ProductoId} no encontrado");
-                    }
-
-                    // Calcular subtotal del item
-                    var subtotalItem = itemRequest.Cantidad * itemRequest.PrecioUnitario;
-                    
-                    // Validar y calcular descuentos
-                    var descuentoMonto = 0m;
-                    if (itemRequest.DescuentoPorcentaje > 0)
-                    {
-                        // Validar límite máximo de descuento
-                        var configuracion = await _configuracionPOSService.GetConfiguracionAsync();
-                        if (configuracion?.DescuentoMaximoPorcentaje != null && 
-                            itemRequest.DescuentoPorcentaje > configuracion.DescuentoMaximoPorcentaje)
+                        if (!clienteExiste)
                         {
-                            throw new InvalidOperationException($"El descuento máximo permitido es {configuracion.DescuentoMaximoPorcentaje}%");
+                            throw new ArgumentException($"Cliente con ID {request.ClienteId.Value} no encontrado");
                         }
-
-                        // Validar si se permiten descuentos manuales
-                        if (configuracion?.PermitirDescuentos == false)
-                        {
-                            throw new InvalidOperationException("Los descuentos manuales no están permitidos");
-                        }
-
-                        descuentoMonto = subtotalItem * (itemRequest.DescuentoPorcentaje / 100);
-                    }
-                    else if (itemRequest.DescuentoMonto > 0)
-                    {
-                        descuentoMonto = itemRequest.DescuentoMonto;
                     }
 
-                    var subtotalConDescuento = subtotalItem - descuentoMonto;
-
-                    // Aplicar impuestos (usando configuración POS)
-                    var impuestosItem = await CalcularImpuestosAsync(subtotalConDescuento);
-
-                    var totalItem = subtotalConDescuento + impuestosItem;
-
-                    var ventaItem = new VentaItem
+                    // Crear la venta
+                    var venta = new Venta
                     {
-                        VentaId = venta.Id,
-                        ProductoId = itemRequest.ProductoId,
-                        ProductoNombre = producto.Nombre,
-                        ProductoCodigo = producto.CodigoBarras,
-                        Cantidad = itemRequest.Cantidad,
-                        PrecioUnitario = itemRequest.PrecioUnitario,
-                        Subtotal = subtotalItem,
-                        DescuentoPorcentaje = itemRequest.DescuentoPorcentaje,
-                        DescuentoMonto = descuentoMonto,
-                        TotalImpuestos = impuestosItem,
-                        Total = totalItem,
-                        Notas = itemRequest.Notas,
+                        NumeroVenta = numeroVenta,
+                        FechaVenta = DateTime.UtcNow,
+                        Notas = request.Notas,
+                        ClienteId = request.ClienteId,
+                        UsuarioId = GetCurrentUserId(), // Implementar según tu sistema de autenticación
+                        Estado = "COMPLETADA",
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                         // EmpresaId se asigna automáticamente en SaveChanges
                     };
 
-                    _context.Set<VentaItem>().Add(ventaItem);
+                    _context.Set<Venta>().Add(venta);
+                    await _context.SaveChangesAsync();
 
-                    subtotal += subtotalItem;
-                    totalDescuentos += descuentoMonto;
-                    totalImpuestos += impuestosItem;
-                }
+                    // Crear items de venta
+                    decimal subtotal = 0;
+                    decimal totalImpuestos = 0;
+                    decimal totalDescuentos = 0;
 
-                // Crear pagos
-                decimal totalPagado = 0;
-                foreach (var pagoRequest in request.Pagos)
-                {
-                    var pago = new Pago
+                    foreach (var itemRequest in request.Items)
                     {
-                        VentaId = venta.Id,
-                        MetodoPago = pagoRequest.MetodoPago,
-                        Monto = pagoRequest.Monto,
-                        Referencia = pagoRequest.Referencia,
-                        Banco = pagoRequest.Banco,
-                        TipoTarjeta = pagoRequest.TipoTarjeta,
-                        FechaPago = DateTime.UtcNow,
-                        Notas = pagoRequest.Notas,
-                        CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow
-                        // EmpresaId se asigna automáticamente en SaveChanges
-                    };
+                        var producto = await _context.Set<Producto>().FindAsync(itemRequest.ProductoId);
+                        if (producto == null)
+                        {
+                            throw new ArgumentException($"Producto con ID {itemRequest.ProductoId} no encontrado");
+                        }
 
-                    _context.Set<Pago>().Add(pago);
-                    totalPagado += pagoRequest.Monto;
+                        // Validar stock disponible
+                        var cantidadVenta = (int)itemRequest.Cantidad;
+                        if (producto.Stock < cantidadVenta)
+                        {
+                            throw new InvalidOperationException(
+                                $"Stock insuficiente para el producto '{producto.Nombre}'. " +
+                                $"Stock disponible: {producto.Stock}, Cantidad solicitada: {cantidadVenta}");
+                        }
+
+                        // Restar cantidad del stock del producto
+                        producto.Stock -= cantidadVenta;
+                        producto.UpdatedAt = DateTime.UtcNow;
+
+                        // Calcular subtotal del item
+                        var subtotalItem = itemRequest.Cantidad * itemRequest.PrecioUnitario;
+                        
+                        // Validar y calcular descuentos
+                        var descuentoMonto = 0m;
+                        if (itemRequest.DescuentoPorcentaje > 0)
+                        {
+                            // Validar límite máximo de descuento
+                            var configuracion = await _configuracionPOSService.GetConfiguracionAsync();
+                            if (configuracion?.DescuentoMaximoPorcentaje != null && 
+                                itemRequest.DescuentoPorcentaje > configuracion.DescuentoMaximoPorcentaje)
+                            {
+                                throw new InvalidOperationException($"El descuento máximo permitido es {configuracion.DescuentoMaximoPorcentaje}%");
+                            }
+
+                            // Validar si se permiten descuentos manuales
+                            if (configuracion?.PermitirDescuentos == false)
+                            {
+                                throw new InvalidOperationException("Los descuentos manuales no están permitidos");
+                            }
+
+                            descuentoMonto = subtotalItem * (itemRequest.DescuentoPorcentaje / 100);
+                        }
+                        else if (itemRequest.DescuentoMonto > 0)
+                        {
+                            descuentoMonto = itemRequest.DescuentoMonto;
+                        }
+
+                        var subtotalConDescuento = subtotalItem - descuentoMonto;
+
+                        // Usar impuestos calculados por el frontend o calcular si no vienen
+                        var impuestosItem = itemRequest.TotalImpuestos > 0 
+                            ? itemRequest.TotalImpuestos 
+                            : await CalcularImpuestosAsync(subtotalConDescuento);
+
+                        var totalItem = subtotalConDescuento + impuestosItem;
+
+                        var ventaItem = new VentaItem
+                        {
+                            VentaId = venta.Id,
+                            ProductoId = itemRequest.ProductoId,
+                            ProductoNombre = producto.Nombre,
+                            ProductoCodigo = producto.CodigoBarras,
+                            Cantidad = itemRequest.Cantidad,
+                            PrecioUnitario = itemRequest.PrecioUnitario,
+                            Subtotal = subtotalItem,
+                            DescuentoPorcentaje = itemRequest.DescuentoPorcentaje,
+                            DescuentoMonto = descuentoMonto,
+                            TotalImpuestos = impuestosItem,
+                            Total = totalItem,
+                            Notas = itemRequest.Notas,
+                            CreatedAt = DateTime.UtcNow,
+                            UpdatedAt = DateTime.UtcNow
+                            // EmpresaId se asigna automáticamente en SaveChanges
+                        };
+
+                        _context.Set<VentaItem>().Add(ventaItem);
+
+                        subtotal += subtotalItem;
+                        totalDescuentos += descuentoMonto;
+                        totalImpuestos += impuestosItem;
+                    }
+
+                    // Crear pagos
+                    decimal totalPagado = 0;
+                    foreach (var pagoRequest in request.Pagos)
+                    {
+                        var pago = new Pago
+                        {
+                            VentaId = venta.Id,
+                            MetodoPago = pagoRequest.MetodoPago,
+                            Monto = pagoRequest.Monto,
+                            MontoRecibido = pagoRequest.MontoRecibido,
+                            CambioDevolver = pagoRequest.CambioDevolver,
+                            Referencia = pagoRequest.Referencia,
+                            Banco = pagoRequest.Banco,
+                            TipoTarjeta = pagoRequest.TipoTarjeta,
+                            FechaPago = DateTime.UtcNow,
+                            Notas = pagoRequest.Notas,
+                            CreatedAt = DateTime.UtcNow,
+                            UpdatedAt = DateTime.UtcNow
+                            // EmpresaId se asigna automáticamente en SaveChanges
+                        };
+
+                        _context.Set<Pago>().Add(pago);
+                        totalPagado += pagoRequest.Monto;
+                    }
+
+                    // Actualizar totales de la venta
+                    venta.Subtotal = subtotal;
+                    venta.TotalImpuestos = totalImpuestos;
+                    venta.TotalDescuentos = totalDescuentos;
+                    venta.Total = subtotal - totalDescuentos + totalImpuestos;
+
+                    // Verificar que el total pagado sea igual o mayor al total de la venta
+                    // Permitir pagos mayores para efectivo (genera cambio)
+                    if (totalPagado < venta.Total - 0.01m)
+                    {
+                        throw new InvalidOperationException($"El total pagado (${totalPagado:F2}) es menor que el total de la venta (${venta.Total:F2})");
+                    }
+
+                    // Validar métodos de pago habilitados
+                    await ValidarMetodosPagoAsync(request.Pagos);
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
+                    _logger.LogInformation("Venta creada exitosamente con ID: {Id}, Número: {Numero}", venta.Id, venta.NumeroVenta);
+
+                    return await GetVentaByIdAsync(venta.Id) ?? throw new InvalidOperationException("Error al recuperar la venta creada");
                 }
-
-                // Actualizar totales de la venta
-                venta.Subtotal = subtotal;
-                venta.TotalImpuestos = totalImpuestos;
-                venta.TotalDescuentos = totalDescuentos;
-                venta.Total = subtotal - totalDescuentos + totalImpuestos;
-
-                // Verificar que el total pagado coincida con el total de la venta
-                if (Math.Abs(totalPagado - venta.Total) > 0.01m)
+                catch
                 {
-                    throw new InvalidOperationException($"El total pagado (${totalPagado:F2}) no coincide con el total de la venta (${venta.Total:F2})");
+                    await transaction.RollbackAsync();
+                    throw;
                 }
-
-                // Validar métodos de pago habilitados
-                await ValidarMetodosPagoAsync(request.Pagos);
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                _logger.LogInformation("Venta creada exitosamente con ID: {Id}, Número: {Numero}", venta.Id, venta.NumeroVenta);
-
-                return await GetVentaByIdAsync(venta.Id) ?? throw new InvalidOperationException("Error al recuperar la venta creada");
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+            });
         }
 
         public async Task<bool> CancelarVentaAsync(int id, string motivo)
@@ -258,6 +285,21 @@ namespace jam_POS.Application.Services
             venta.FechaCancelacion = DateTime.UtcNow;
             venta.MotivoCancelacion = motivo;
             venta.UpdatedAt = DateTime.UtcNow;
+
+            // Restaurar stock de los productos
+            var ventaItems = await _context.Set<VentaItem>()
+                .Where(vi => vi.VentaId == id)
+                .ToListAsync();
+
+            foreach (var item in ventaItems)
+            {
+                var producto = await _context.Set<Producto>().FindAsync(item.ProductoId);
+                if (producto != null)
+                {
+                    producto.Stock += (int)item.Cantidad;
+                    producto.UpdatedAt = DateTime.UtcNow;
+                }
+            }
 
             await _context.SaveChangesAsync();
 
@@ -356,9 +398,15 @@ namespace jam_POS.Application.Services
 
         private int GetCurrentUserId()
         {
-            // TODO: Implementar obtención del usuario actual desde el contexto de autenticación
-            // Por ahora retornamos 1 como placeholder
-            return 1;
+            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                _logger.LogWarning("No se pudo obtener el ID del usuario actual desde el token JWT");
+                throw new UnauthorizedAccessException("Usuario no autenticado o token inválido");
+            }
+            
+            return userId;
         }
 
         private async Task ValidarMetodosPagoAsync(IEnumerable<CreatePagoRequest> pagos)
@@ -464,6 +512,8 @@ namespace jam_POS.Application.Services
                 VentaId = pago.VentaId,
                 MetodoPago = pago.MetodoPago,
                 Monto = pago.Monto,
+                MontoRecibido = pago.MontoRecibido,
+                CambioDevolver = pago.CambioDevolver,
                 Referencia = pago.Referencia,
                 Banco = pago.Banco,
                 TipoTarjeta = pago.TipoTarjeta,

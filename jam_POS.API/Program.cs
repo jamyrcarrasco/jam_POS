@@ -9,9 +9,13 @@ using jam_POS.Application.Services;
 using jam_POS.API.Middleware;
 using jam_POS.Application.DTOs.Common;
 using jam_POS.Application.Interfaces;
+using jam_POS.API.Services;
 using Amazon.S3;
 using Amazon;
 using Microsoft.AspNetCore.Http.Features;
+
+// Configure global DateTime handling for PostgreSQL - MUST be called before any Npgsql operations
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +24,11 @@ var builder = WebApplication.CreateBuilder(args);
 // ============================================
 
 // Controladores + vistas (necesario para SPA)
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
 
 // Archivos estáticos del Angular compilado
 builder.Services.AddSpaStaticFiles(configuration =>
@@ -30,7 +38,18 @@ builder.Services.AddSpaStaticFiles(configuration =>
 
 // Entity Framework + PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), 
+        npgsqlOptions => 
+        {
+            npgsqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+            npgsqlOptions.EnableRetryOnFailure();
+        }));
+
+// HttpContextAccessor para acceder al contexto HTTP en servicios
+builder.Services.AddHttpContextAccessor();
+
+// HttpClient Factory para servicios externos (Resend, etc.)
+builder.Services.AddHttpClient();
 
 // Inyección de dependencias de servicios de aplicación
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -42,8 +61,10 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEmpresaService, EmpresaService>();
 builder.Services.AddScoped<IImpuestoService, ImpuestoService>();
 builder.Services.AddScoped<IConfiguracionPOSService, ConfiguracionPOSService>();
-builder.Services.AddScoped<IVentaService, VentaService>();
+builder.Services.AddScoped<jam_POS.Application.Services.IVentaService, jam_POS.Application.Services.VentaService>();
+builder.Services.AddScoped<jam_POS.API.Services.IVentaService, jam_POS.API.Services.VentaService>();
 builder.Services.AddScoped<IClienteService, ClienteService>();
+builder.Services.AddScoped<jam_POS.API.Services.IReporteService, jam_POS.API.Services.ReporteService>();
 builder.Services.AddScoped<JwtService>();
 
 // Multi-Tenant Services

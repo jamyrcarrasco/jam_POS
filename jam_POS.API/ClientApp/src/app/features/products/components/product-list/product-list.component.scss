@@ -4,6 +4,51 @@
   margin: 0 auto;
 }
 
+// Breadcrumbs
+.breadcrumb-nav {
+  margin-bottom: 1.5rem;
+
+  .breadcrumb {
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    .breadcrumb-item {
+      display: flex;
+      align-items: center;
+      font-size: 0.9rem;
+      color: rgba(0, 0, 0, 0.6);
+
+      a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        text-decoration: none;
+        color: inherit;
+
+        mat-icon {
+          font-size: 1rem;
+          height: 1rem;
+          width: 1rem;
+        }
+      }
+
+      &.active {
+        font-weight: 600;
+        color: rgba(0, 0, 0, 0.8);
+      }
+
+      & + .breadcrumb-item::before {
+        content: '›';
+        margin: 0 0.5rem;
+        color: rgba(0, 0, 0, 0.4);
+      }
+    }
+  }
+}
+
 .header-card {
   margin-bottom: 20px;
 
@@ -26,6 +71,34 @@
     display: flex;
     gap: 12px;
     justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+
+    .action-spacer {
+      flex: 1 1 auto;
+    }
+
+    button mat-icon {
+      margin-right: 6px;
+    }
+
+    .excel-button {
+      background-color: #217346;
+      color: #fff;
+
+      &:hover {
+        background-color: #1a5a39;
+      }
+    }
+
+    .template-button {
+      border-color: #217346;
+      color: #217346;
+
+      &:hover {
+        background-color: rgba(33, 115, 70, 0.08);
+      }
+    }
   }
 }
 
@@ -137,6 +210,43 @@
   color: #666;
 }
 
+// Product image styles
+.product-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+
+  .product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #999;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+
 // Stock status classes
 .stock-ok {
   color: #2e7d32;
@@ -159,6 +269,22 @@
     padding: 12px;
   }
 
+  .action-card {
+    .action-buttons {
+      flex-direction: column;
+      align-items: stretch;
+
+      .action-spacer {
+        display: none;
+      }
+
+      button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+
   .form-row {
     &.two-col,
     &.three-col {
@@ -170,10 +296,22 @@
     display: none;
 
     &:nth-child(1),
-    &:nth-child(3),
+    &:nth-child(2),
     &:nth-child(4),
-    &:nth-child(7) {
+    &:nth-child(5),
+    &:nth-child(8) {
       display: table-cell;
+    }
+  }
+
+  .product-image {
+    width: 40px;
+    height: 40px;
+
+    .no-image mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
     }
   }
 

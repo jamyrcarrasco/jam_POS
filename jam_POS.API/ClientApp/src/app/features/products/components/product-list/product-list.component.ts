@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,6 +24,8 @@ import { Product, ProductFilter } from '../../models/product.model';
 import { PagedResult } from '../../../../core/models/pagination.model';
 import { CategoryService } from '../../../categories/services/category.service';
 import { ProductModalComponent, ProductModalData } from '../product-modal/product-modal.component';
+import { ProductImportModalComponent } from '../product-import-modal/product-import-modal.component';
+import { ProductImportResult } from '../../models/product-import-result.model';
 
 @Component({
   selector: 'app-product-list',
@@ -30,6 +33,7 @@ import { ProductModalComponent, ProductModalData } from '../product-modal/produc
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
@@ -55,7 +59,7 @@ export class ProductListComponent implements OnInit {
   pagedResult: PagedResult<Product> | null = null;
   filterForm: FormGroup;
   categorias: any[] = [];
-  displayedColumns: string[] = ['nombre', 'descripcion', 'precio', 'stock', 'categoriaNombre', 'activo', 'acciones'];
+  displayedColumns: string[] = ['imagen', 'nombre', 'descripcion', 'precio', 'stock', 'categoriaNombre', 'activo', 'acciones'];
   loading = false;
   showFilters = false;
 
@@ -225,6 +229,67 @@ export class ProductListComponent implements OnInit {
     if (filters.stockBajo) count++;
     if (filters.activo !== null) count++;
     return count;
+  }
+
+  openImportModal(): void {
+    const dialogRef = this.dialog.open(ProductImportModalComponent, {
+      width: '520px',
+      maxWidth: '95vw'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.success) {
+        const summary: ProductImportResult | undefined = result.summary;
+        if (summary) {
+          const messageParts = [
+            `Nuevos: ${summary.createdCount}`,
+            `Actualizados: ${summary.updatedCount}`
+          ];
+          if (summary.failedCount > 0) {
+            messageParts.push(`Errores: ${summary.failedCount}`);
+          }
+          this.snackBar.open(`Importación completada. ${messageParts.join(' · ')}`, 'Cerrar', {
+            duration: 5000,
+            panelClass: [summary.failedCount > 0 ? 'error-snackbar' : 'success-snackbar']
+          });
+        }
+        this.loadProducts();
+      }
+    });
+  }
+
+  downloadTemplate(): void {
+    this.productService.downloadTemplate().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `plantilla_productos_${new Date().getTime()}.xlsx`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+        this.snackBar.open('Plantilla descargada correctamente', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['success-snackbar']
+        });
+      },
+      error: (error) => {
+        console.error('Error downloading template:', error);
+        this.snackBar.open('Error al descargar la plantilla', 'Cerrar', {
+          duration: 4000,
+          panelClass: ['error-snackbar']
+        });
+      }
+    });
+  }
+
+  onImageError(event: any): void {
+    // Hide the broken image and show the no-image placeholder
+    event.target.style.display = 'none';
+    const parent = event.target.parentElement;
+    const noImageDiv = parent.querySelector('.no-image');
+    if (noImageDiv) {
+      noImageDiv.style.display = 'flex';
+    }
   }
 
 }

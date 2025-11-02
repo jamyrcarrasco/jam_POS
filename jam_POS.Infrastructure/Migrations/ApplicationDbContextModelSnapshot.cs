@@ -40,7 +40,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Descripcion")
                         .HasMaxLength(500)
@@ -59,7 +59,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -147,7 +147,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Direccion")
                         .HasMaxLength(300)
@@ -165,7 +165,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("FechaNacimiento")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -181,7 +181,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -205,7 +205,7 @@ namespace jam_POS.Infrastructure.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("CreditoHabilitado")
                         .HasColumnType("boolean");
@@ -309,7 +309,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -342,7 +342,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasColumnType("character varying(20)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Direccion")
                         .HasMaxLength(200)
@@ -353,7 +353,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTime?>("FechaVencimientoPlan")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("LogoUrl")
                         .HasMaxLength(500)
@@ -389,7 +389,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -419,7 +419,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasDefaultValue(false);
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Descripcion")
                         .HasMaxLength(500)
@@ -447,7 +447,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasDefaultValue("PORCENTUAL");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -474,14 +474,17 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<decimal?>("CambioDevolver")
+                        .HasColumnType("numeric");
+
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int?>("EmpresaId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("FechaPago")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("MetodoPago")
                         .IsRequired()
@@ -490,6 +493,9 @@ namespace jam_POS.Infrastructure.Migrations
 
                     b.Property<decimal>("Monto")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("MontoRecibido")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("Notas")
                         .HasMaxLength(500)
@@ -504,7 +510,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("VentaId")
                         .HasColumnType("integer");
@@ -529,7 +535,7 @@ namespace jam_POS.Infrastructure.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -853,7 +859,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Descripcion")
                         .HasMaxLength(500)
@@ -887,7 +893,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -916,7 +922,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasDefaultValue(true);
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -937,7 +943,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -981,7 +987,7 @@ namespace jam_POS.Infrastructure.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("GrantedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("PermissionId")
                         .HasColumnType("integer");
@@ -1255,7 +1261,7 @@ namespace jam_POS.Infrastructure.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -1274,7 +1280,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<DateTime?>("LastLoginAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -1316,7 +1322,7 @@ namespace jam_POS.Infrastructure.Migrations
                             FirstName = "Super",
                             IsActive = true,
                             LastName = "Admin",
-                            PasswordHash = "$2a$11$blt0vmBAmrAygUpylf2p8.IwbEacR2YZdJMg0Je534tJKo3/srBp6",
+                            PasswordHash = "$2a$11$/4.POboh1wp25aamEW4cDeXA6L04UbBQUqIrUjW1yI6xUIOX1LWaa",
                             RoleId = 1,
                             Username = "admin"
                         },
@@ -1328,7 +1334,7 @@ namespace jam_POS.Infrastructure.Migrations
                             FirstName = "John",
                             IsActive = true,
                             LastName = "Seller",
-                            PasswordHash = "$2a$11$6NLvxBlVJ44gCMJDY6J8r.VyulaG9DI/99cnfALzdyCnv.MyaGq4m",
+                            PasswordHash = "$2a$11$cs6/Bd8Sp/goqY/QrTnDLOOtj/neA925/bz0yCdzeuDqk3nzt0wEq",
                             RoleId = 2,
                             Username = "seller"
                         });
@@ -1346,7 +1352,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int?>("EmpresaId")
                         .HasColumnType("integer");
@@ -1359,10 +1365,10 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasDefaultValue("COMPLETADA");
 
                     b.Property<DateTime?>("FechaCancelacion")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("FechaVenta")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("MotivoCancelacion")
                         .HasMaxLength(500)
@@ -1390,7 +1396,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("UsuarioId")
                         .HasColumnType("integer");
@@ -1424,7 +1430,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasColumnType("decimal(18,3)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<decimal>("DescuentoMonto")
                         .ValueGeneratedOnAdd()
@@ -1470,7 +1476,7 @@ namespace jam_POS.Infrastructure.Migrations
                         .HasDefaultValue(0m);
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("VentaId")
                         .HasColumnType("integer");
@@ -1496,6 +1502,15 @@ namespace jam_POS.Infrastructure.Migrations
                     b.Navigation("Empresa");
                 });
 
+            modelBuilder.Entity("jam_POS.Core.Entities.Cliente", b =>
+                {
+                    b.HasOne("jam_POS.Core.Entities.Empresa", "Empresa")
+                        .WithMany("Clientes")
+                        .HasForeignKey("EmpresaId");
+
+                    b.Navigation("Empresa");
+                });
+
             modelBuilder.Entity("jam_POS.Core.Entities.ConfiguracionPOS", b =>
                 {
                     b.HasOne("jam_POS.Core.Entities.Empresa", "Empresa")
@@ -1516,7 +1531,7 @@ namespace jam_POS.Infrastructure.Migrations
             modelBuilder.Entity("jam_POS.Core.Entities.Impuesto", b =>
                 {
                     b.HasOne("jam_POS.Core.Entities.Empresa", "Empresa")
-                        .WithMany("Clientes")
+                        .WithMany()
                         .HasForeignKey("EmpresaId")
                         .OnDelete(DeleteBehavior.Cascade);
 
@@ -1605,27 +1620,17 @@ namespace jam_POS.Infrastructure.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("jam_POS.Core.Entities.Cliente", b =>
-                {
-                    b.HasOne("jam_POS.Core.Entities.Empresa", "Empresa")
-                        .WithMany()
-                        .HasForeignKey("EmpresaId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Empresa");
-                });
-
             modelBuilder.Entity("jam_POS.Core.Entities.Venta", b =>
                 {
-                    b.HasOne("jam_POS.Core.Entities.Empresa", "Empresa")
-                        .WithMany()
-                        .HasForeignKey("EmpresaId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("jam_POS.Core.Entities.Cliente", "Cliente")
                         .WithMany("Ventas")
                         .HasForeignKey("ClienteId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("jam_POS.Core.Entities.Empresa", "Empresa")
+                        .WithMany()
+                        .HasForeignKey("EmpresaId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("jam_POS.Core.Entities.User", "Usuario")
                         .WithMany()
@@ -1633,9 +1638,9 @@ namespace jam_POS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Empresa");
-
                     b.Navigation("Cliente");
+
+                    b.Navigation("Empresa");
 
                     b.Navigation("Usuario");
                 });

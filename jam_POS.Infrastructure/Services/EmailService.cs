@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SendGrid;
-using SendGrid.Helpers.Mail;
+using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace jam_POS.Infrastructure.Services
 {
@@ -9,17 +9,22 @@ namespace jam_POS.Infrastructure.Services
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger<EmailService> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly string? _apiKey;
         private readonly string? _fromEmail;
         private readonly string? _fromName;
 
-        public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
+        public EmailService(
+            IConfiguration configuration, 
+            ILogger<EmailService> logger,
+            IHttpClientFactory httpClientFactory)
         {
             _configuration = configuration;
             _logger = logger;
-            _apiKey = _configuration["SendGrid:ApiKey"];
-            _fromEmail = _configuration["SendGrid:FromEmail"];
-            _fromName = _configuration["SendGrid:FromName"];
+            _httpClientFactory = httpClientFactory;
+            _apiKey = _configuration["Resend:ApiKey"];
+            _fromEmail = _configuration["Resend:FromEmail"];
+            _fromName = _configuration["Resend:FromName"];
         }
 
         public async Task<bool> SendWelcomeEmailAsync(string toEmail, string empresaName, string adminName, string username)
@@ -54,36 +59,47 @@ namespace jam_POS.Infrastructure.Services
 
                 if (string.IsNullOrEmpty(_apiKey))
                 {
-                    _logger.LogWarning("⚠️ SendGrid API Key no configurada. Email no enviado a: {Email}", toEmail);
-                    _logger.LogWarning("💡 Configura 'SendGrid:ApiKey' en appsettings.json");
+                    _logger.LogWarning("⚠️ Resend API Key no configurada. Email no enviado a: {Email}", toEmail);
+                    _logger.LogWarning("💡 Configura 'Resend:ApiKey' en appsettings.json");
                     return false;
                 }
 
                 if (string.IsNullOrEmpty(_fromEmail))
                 {
-                    _logger.LogWarning("⚠️ SendGrid FromEmail no configurado. Usando email por defecto.");
+                    _logger.LogWarning("⚠️ Resend FromEmail no configurado. Usando email por defecto.");
                 }
 
-                _logger.LogDebug("📤 Preparando email con SendGrid...");
+                _logger.LogDebug("📤 Preparando email con Resend...");
                 _logger.LogDebug("From: {FromEmail} ({FromName})", _fromEmail ?? "noreply@jampos.com", _fromName ?? "jamPOS");
                 _logger.LogDebug("To: {ToEmail}", toEmail);
 
-                var client = new SendGridClient(_apiKey);
-                var from = new EmailAddress(_fromEmail ?? "noreply@jampos.com", _fromName ?? "jamPOS");
-                var to = new EmailAddress(toEmail);
-                var msg = MailHelper.CreateSingleEmail(from, to, subject, "", htmlContent);
-                
-                _logger.LogDebug("🚀 Enviando email a SendGrid...");
-                var response = await client.SendEmailAsync(msg);
+                var httpClient = _httpClientFactory.CreateClient();
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
+
+                var emailPayload = new
+                {
+                    from = $"{_fromName ?? "jamPOS"} <{_fromEmail ?? "noreply@jampos.com"}>",
+                    to = new[] { toEmail },
+                    subject = subject,
+                    html = htmlContent
+                };
+
+                _logger.LogDebug("🚀 Enviando email a Resend API...");
+                var response = await httpClient.PostAsJsonAsync(
+                    "https://api.resend.com/emails",
+                    emailPayload
+                );
 
                 if (response.IsSuccessStatusCode)
                 {
+                    var responseBody = await response.Content.ReadAsStringAsync();
                     _logger.LogInformation("✅ Email enviado exitosamente a: {Email} - Status: {Status}", toEmail, response.StatusCode);
+                    _logger.LogDebug("Respuesta de Resend: {Response}", responseBody);
                     return true;
                 }
                 else
                 {
-                    var responseBody = await response.Body.ReadAsStringAsync();
+                    var responseBody = await response.Content.ReadAsStringAsync();
                     _logger.LogError("❌ Error al enviar email. Status: {Status}", response.StatusCode);
                     _logger.LogError("Detalles del error: {Body}", responseBody);
                     _logger.LogError("A: {Email}, Asunto: {Subject}", toEmail, subject);

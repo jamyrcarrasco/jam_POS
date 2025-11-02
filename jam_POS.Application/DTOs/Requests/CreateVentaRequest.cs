@@ -37,6 +37,9 @@ namespace jam_POS.Application.DTOs.Requests
         [Range(0, double.MaxValue, ErrorMessage = "El descuento no puede ser negativo")]
         public decimal DescuentoMonto { get; set; } = 0;
 
+        [Range(0, double.MaxValue, ErrorMessage = "Los impuestos no pueden ser negativos")]
+        public decimal TotalImpuestos { get; set; } = 0; // Impuestos ya calculados por el frontend
+
         [StringLength(500, ErrorMessage = "Las notas no pueden exceder 500 caracteres")]
         public string? Notas { get; set; }
     }
@@ -50,6 +53,13 @@ namespace jam_POS.Application.DTOs.Requests
         [Required(ErrorMessage = "El monto es requerido")]
         [Range(0.01, double.MaxValue, ErrorMessage = "El monto debe ser mayor a 0")]
         public decimal Monto { get; set; }
+
+        // Campos para pago en efectivo con cambio
+        [Range(0, double.MaxValue, ErrorMessage = "El monto recibido no puede ser negativo")]
+        public decimal? MontoRecibido { get; set; } // Monto que entregó el cliente en efectivo
+
+        [Range(0, double.MaxValue, ErrorMessage = "El cambio no puede ser negativo")]
+        public decimal? CambioDevolver { get; set; } // Cambio que se devolvió al cliente
 
         [StringLength(100, ErrorMessage = "La referencia no puede exceder 100 caracteres")]
         public string? Referencia { get; set; }

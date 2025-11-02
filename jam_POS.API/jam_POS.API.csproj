@@ -35,7 +35,12 @@
 
   <ItemGroup>
     <DistFiles Include="$(SpaRoot)dist\**" />
-    <ResolvedFileToPublish Include="@(DistFiles-&gt;'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+    <Compile Remove="ClientApp\**" />
+    <Content Remove="ClientApp\**" />
+    <DistFiles Remove="ClientApp\**" />
+    <EmbeddedResource Remove="ClientApp\**" />
+    <None Remove="ClientApp\**" />
+    <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
       <RelativePath>%(DistFiles.Identity)</RelativePath>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </ResolvedFileToPublish>

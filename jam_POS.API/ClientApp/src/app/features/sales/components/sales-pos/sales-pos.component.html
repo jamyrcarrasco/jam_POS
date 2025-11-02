@@ -1,4 +1,19 @@
 <div class="sales-pos-container">
+  <!-- Breadcrumbs -->
+  <nav class="breadcrumb-nav" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/dashboard']">
+          <mat-icon>home</mat-icon>
+          Inicio
+        </a>
+      </li>
+      <li class="breadcrumb-item active">
+        <span>Ventas</span>
+      </li>
+    </ol>
+  </nav>
+
   <!-- Header -->
   <div class="header">
     <div class="header-info">
@@ -48,6 +63,16 @@
               class="product-card" 
               *ngFor="let product of filteredProducts; trackBy: trackByProductId"
               (click)="addProductToCart(product)">
+              <div class="product-image">
+                <img *ngIf="product.imagenUrl" 
+                     [src]="product.imagenUrl" 
+                     [alt]="product.nombre"
+                     class="product-img"
+                     (error)="onImageError($event)">
+                <div *ngIf="!product.imagenUrl" class="no-image">
+                  <mat-icon>image_not_supported</mat-icon>
+                </div>
+              </div>
               <div class="product-info">
                 <h4>{{ product.nombre }}</h4>
                 <p class="product-code" *ngIf="product.codigoBarras">{{ product.codigoBarras }}</p>
@@ -91,49 +116,59 @@
         
         <mat-card-content>
           <div class="cart-items" *ngIf="cartItems.length > 0; else emptyCart">
-            <div class="cart-item" *ngFor="let item of cartItems; let i = index; trackBy: trackByItemId">
-              <div class="item-info">
-                <h4>{{ item.productoNombre }}</h4>
-                <p class="item-code" *ngIf="item.productoCodigo">{{ item.productoCodigo }}</p>
-              </div>
-              
-              <div class="item-controls">
-                <div class="quantity-control">
-                  <button mat-icon-button (click)="updateItemQuantity(item, item.cantidad - 1)">
-                    <mat-icon>remove</mat-icon>
-                  </button>
-                  <span class="quantity">{{ item.cantidad }}</span>
-                  <button mat-icon-button (click)="updateItemQuantity(item, item.cantidad + 1)">
-                    <mat-icon>add</mat-icon>
-                  </button>
-                </div>
-                
-                <div class="price-control">
-                  <mat-form-field appearance="outline" class="price-field">
-                    <mat-label>Precio</mat-label>
-                    <input matInput type="number" [value]="item.precioUnitario" 
-                           (change)="onPriceChange(item, $event)" step="0.01" min="0">
-                    <span matPrefix>{{ posConfig?.simboloMoneda || '$' }}&nbsp;</span>
-                  </mat-form-field>
-                </div>
-                
-                <div class="discount-control" *ngIf="areDiscountsAllowed()">
-                  <mat-form-field appearance="outline" class="discount-field">
-                    <mat-label>Desc%</mat-label>
-                    <input matInput type="number" [value]="item.descuentoPorcentaje" 
-                           (change)="onDiscountChange(item, $event)" step="0.01" min="0" max="100">
-                    <span matSuffix>%</span>
-                  </mat-form-field>
-                </div>
-              </div>
-              
-              <div class="item-total">
-                <span class="total-amount">{{ formatCurrency(item.total) }}</span>
-                <button mat-icon-button color="warn" (click)="removeItemFromCart(i)">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-            </div>
+            <table class="cart-table">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Precio Unit.</th>
+                  <th *ngIf="areDiscountsAllowed()">Desc%</th>
+                  <th>Impuesto</th>
+                  <th>Total</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of cartItems; let i = index; trackBy: trackByItemId">
+                  <td class="product-cell">
+                    <div class="product-name">{{ item.productoNombre }}</div>
+                    <div class="product-code" *ngIf="item.productoCodigo">{{ item.productoCodigo }}</div>
+                  </td>
+                  <td class="quantity-cell">
+                    <div class="quantity-control">
+                      <button mat-icon-button (click)="updateItemQuantity(item, item.cantidad - 1)">
+                        <mat-icon>remove</mat-icon>
+                      </button>
+                      <input type="number" class="quantity-input" [value]="item.cantidad" readonly>
+                      <button mat-icon-button (click)="updateItemQuantity(item, item.cantidad + 1)">
+                        <mat-icon>add</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                  <td class="price-cell">
+                    <span class="unit-price">{{ formatCurrency(item.precioUnitario) }}</span>
+                  </td>
+                  <td class="discount-cell" *ngIf="areDiscountsAllowed()">
+                    <mat-form-field appearance="outline" class="compact-field">
+                      <input matInput type="number" [value]="item.descuentoPorcentaje" 
+                             (change)="onDiscountChange(item, $event)" step="0.01" min="0" max="100">
+                      <span matSuffix>%</span>
+                    </mat-form-field>
+                  </td>
+                  <td class="tax-cell">
+                    <span class="tax-amount">{{ formatCurrency(item.totalImpuestos) }}</span>
+                  </td>
+                  <td class="total-cell">
+                    <span class="total-amount">{{ formatCurrency(item.total) }}</span>
+                  </td>
+                  <td class="action-cell">
+                    <button mat-icon-button color="warn" (click)="removeItemFromCart(i)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
           <ng-template #emptyCart>

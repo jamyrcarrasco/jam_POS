@@ -39,6 +39,8 @@ export interface Payment {
   ventaId: number;
   metodoPago: string;
   monto: number;
+  montoRecibido?: number; // Monto que entregó el cliente en efectivo
+  cambioDevolver?: number; // Cambio que se devolvió al cliente
   referencia?: string;
   banco?: string;
   tipoTarjeta?: string;
@@ -70,12 +72,15 @@ export interface CreateSaleItemRequest {
   precioUnitario: number;
   descuentoPorcentaje?: number;
   descuentoMonto?: number;
+  totalImpuestos?: number;
   notas?: string;
 }
 
 export interface CreatePaymentRequest {
   metodoPago: string;
   monto: number;
+  montoRecibido?: number; // Monto que entregó el cliente en efectivo
+  cambioDevolver?: number; // Cambio que se devolvió al cliente
   referencia?: string;
   banco?: string;
   tipoTarjeta?: string;
