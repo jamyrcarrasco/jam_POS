@@ -43,6 +43,7 @@ namespace jam_POS.API.DTOs
     {
         public List<CreateVentaItemRequest> Items { get; set; } = new List<CreateVentaItemRequest>();
         public List<CreatePagoRequest> Pagos { get; set; } = new List<CreatePagoRequest>();
+        public int? ClienteId { get; set; }
         public decimal Descuento { get; set; }
         public decimal Impuesto { get; set; }
         public string? Observaciones { get; set; }

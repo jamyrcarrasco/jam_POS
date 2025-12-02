@@ -241,7 +241,7 @@ namespace jam_POS.Application.Services
                     }
 
                     // Validar métodos de pago habilitados
-                    await ValidarMetodosPagoAsync(request.Pagos);
+                    await ValidarMetodosPagoAsync(request);
 
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
@@ -417,14 +417,16 @@ namespace jam_POS.Application.Services
             return userId;
         }
 
-        private async Task ValidarMetodosPagoAsync(IEnumerable<CreatePagoRequest> pagos)
+        private async Task ValidarMetodosPagoAsync(CreateVentaRequest request)
         {
             var configuracion = await _configuracionPOSService.GetConfiguracionAsync();
             if (configuracion == null) return;
 
-            foreach (var pago in pagos)
+            foreach (var pago in request.Pagos)
             {
-                switch (pago.MetodoPago.ToUpper())
+                var metodo = pago.MetodoPago?.ToUpperInvariant() ?? string.Empty;
+
+                switch (metodo)
                 {
                     case "EFECTIVO":
                         if (!configuracion.EfectivoHabilitado)
@@ -433,14 +435,29 @@ namespace jam_POS.Application.Services
                     case "TARJETA":
                         if (!configuracion.TarjetaHabilitado)
                             throw new InvalidOperationException("El método de pago TARJETA no está habilitado");
+
+                        if (string.IsNullOrWhiteSpace(pago.TipoTarjeta))
+                            throw new InvalidOperationException("El tipo de tarjeta es obligatorio para pagos con TARJETA.");
+
+                        if (string.IsNullOrWhiteSpace(pago.Referencia))
+                            throw new InvalidOperationException("La referencia es obligatoria para pagos con TARJETA.");
                         break;
                     case "TRANSFERENCIA":
                         if (!configuracion.TransferenciaHabilitado)
                             throw new InvalidOperationException("El método de pago TRANSFERENCIA no está habilitado");
+
+                        if (string.IsNullOrWhiteSpace(pago.Banco))
+                            throw new InvalidOperationException("El banco es obligatorio para pagos con TRANSFERENCIA.");
+
+                        if (string.IsNullOrWhiteSpace(pago.Referencia))
+                            throw new InvalidOperationException("La referencia es obligatoria para pagos con TRANSFERENCIA.");
                         break;
                     case "CREDITO":
                         if (!configuracion.CreditoHabilitado)
                             throw new InvalidOperationException("El método de pago CREDITO no está habilitado");
+
+                        if (!request.ClienteId.HasValue && string.IsNullOrWhiteSpace(pago.Referencia))
+                            throw new InvalidOperationException("Para pagos a crédito se debe identificar el cliente o indicar una referencia de crédito.");
                         break;
                     default:
                         throw new InvalidOperationException($"Método de pago no válido: {pago.MetodoPago}");
