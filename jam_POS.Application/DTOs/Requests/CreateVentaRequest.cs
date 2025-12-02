@@ -1,8 +1,10 @@
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace jam_POS.Application.DTOs.Requests
 {
-    public class CreateVentaRequest
+    public class CreateVentaRequest : IValidatableObject
     {
         [StringLength(500, ErrorMessage = "Las notas no pueden exceder 500 caracteres")]
         public string? Notas { get; set; }
@@ -16,6 +18,21 @@ namespace jam_POS.Application.DTOs.Requests
         [Required(ErrorMessage = "Los pagos son requeridos")]
         [MinLength(1, ErrorMessage = "Debe incluir al menos un método de pago")]
         public List<CreatePagoRequest> Pagos { get; set; } = new();
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            foreach (var pago in Pagos)
+            {
+                if (string.Equals(pago.MetodoPago, "CREDITO", StringComparison.OrdinalIgnoreCase)
+                    && !ClienteId.HasValue
+                    && string.IsNullOrWhiteSpace(pago.Referencia))
+                {
+                    yield return new ValidationResult(
+                        "Para pagos a crédito se requiere especificar el cliente o una referencia de crédito.",
+                        new[] { nameof(Pagos), nameof(ClienteId) });
+                }
+            }
+        }
     }
 
     public class CreateVentaItemRequest
@@ -44,7 +61,7 @@ namespace jam_POS.Application.DTOs.Requests
         public string? Notas { get; set; }
     }
 
-    public class CreatePagoRequest
+    public class CreatePagoRequest : IValidatableObject
     {
         [Required(ErrorMessage = "El método de pago es requerido")]
         [StringLength(50, ErrorMessage = "El método de pago no puede exceder 50 caracteres")]
@@ -72,6 +89,45 @@ namespace jam_POS.Application.DTOs.Requests
 
         [StringLength(500, ErrorMessage = "Las notas no pueden exceder 500 caracteres")]
         public string? Notas { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            var metodo = MetodoPago?.ToUpperInvariant() ?? string.Empty;
+
+            if (metodo == "TARJETA")
+            {
+                if (string.IsNullOrWhiteSpace(TipoTarjeta))
+                {
+                    yield return new ValidationResult(
+                        "El tipo de tarjeta es requerido para pagos con TARJETA.",
+                        new[] { nameof(TipoTarjeta) });
+                }
+
+                if (string.IsNullOrWhiteSpace(Referencia))
+                {
+                    yield return new ValidationResult(
+                        "La referencia es requerida para pagos con TARJETA.",
+                        new[] { nameof(Referencia) });
+                }
+            }
+
+            if (metodo == "TRANSFERENCIA")
+            {
+                if (string.IsNullOrWhiteSpace(Banco))
+                {
+                    yield return new ValidationResult(
+                        "El banco es requerido para pagos con TRANSFERENCIA.",
+                        new[] { nameof(Banco) });
+                }
+
+                if (string.IsNullOrWhiteSpace(Referencia))
+                {
+                    yield return new ValidationResult(
+                        "La referencia es requerida para pagos con TRANSFERENCIA.",
+                        new[] { nameof(Referencia) });
+                }
+            }
+        }
     }
 }
 

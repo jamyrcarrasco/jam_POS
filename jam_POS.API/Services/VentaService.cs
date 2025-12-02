@@ -117,7 +117,7 @@ namespace jam_POS.API.Services
             return new jam_POS.Application.DTOs.Requests.CreateVentaRequest
             {
                 Notas = apiRequest.Observaciones,
-                ClienteId = null, // API request doesn't have ClienteId
+                ClienteId = apiRequest.ClienteId,
                 Items = apiRequest.Items.Select(MapItemToApp).ToList(),
                 Pagos = apiRequest.Pagos.Select(MapPagoToApp).ToList()
             };
