@@ -215,8 +215,16 @@ namespace jam_POS.Application.Services
                             // EmpresaId se asigna automáticamente en SaveChanges
                         };
 
+                        var aportePago = pagoRequest.Monto;
+                        if (pagoRequest.MetodoPago.Equals("EFECTIVO", StringComparison.OrdinalIgnoreCase)
+                            && pagoRequest.MontoRecibido.HasValue
+                            && pagoRequest.CambioDevolver.HasValue)
+                        {
+                            aportePago = pagoRequest.MontoRecibido.Value - pagoRequest.CambioDevolver.Value;
+                        }
+
                         _context.Set<Pago>().Add(pago);
-                        totalPagado += pagoRequest.Monto;
+                        totalPagado += aportePago;
                     }
 
                     // Actualizar totales de la venta
