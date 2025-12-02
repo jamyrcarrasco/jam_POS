@@ -1,0 +1,114 @@
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+// Define custom Scalaro palette (Teal/Turquoise)
+$scalaro-primary: (
+  50: #f0fdfa,
+  100: #ccfbf1,
+  200: #99f6e4,
+  300: #5eead4,
+  400: #2dd4bf,
+  500: #14b8a6,
+  600: #0d9488,
+  700: #0f766e,
+  800: #115e59,
+  900: #134e4a,
+  A100: #99f6e4,
+  A200: #5eead4,
+  A400: #2dd4bf,
+  A700: #0f766e,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: rgba(black, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(black, 0.87),
+    A200: rgba(black, 0.87),
+    A400: rgba(black, 0.87),
+    A700: white,
+  )
+);
+
+// Define custom Navy Blue palette
+$scalaro-accent: (
+  50: #f0f5ff,
+  100: #e0e9ff,
+  200: #c7d7fe,
+  300: #a5b9fc,
+  400: #8599f8,
+  500: #6b7ef2,
+  600: #5568e6,
+  700: #4553d1,
+  800: #3a44a8,
+  900: #1e3a8a,
+  A100: #c7d7fe,
+  A200: #a5b9fc,
+  A400: #8599f8,
+  A700: #1e3a8a,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: rgba(black, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(black, 0.87),
+    A200: rgba(black, 0.87),
+    A400: rgba(black, 0.87),
+    A700: white,
+  )
+);
+
+// Create the theme
+$scalaro-primary-palette: mat.define-palette($scalaro-primary, 500, 400, 700);
+$scalaro-accent-palette: mat.define-palette($scalaro-accent, 900, 800, 900);
+$scalaro-warn-palette: mat.define-palette(mat.$red-palette);
+
+$scalaro-theme: mat.define-light-theme((
+  color: (
+    primary: $scalaro-primary-palette,
+    accent: $scalaro-accent-palette,
+    warn: $scalaro-warn-palette,
+  )
+));
+
+@include mat.all-component-themes($scalaro-theme);
+
+// Additional custom styles
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+html, body {
+  height: 100%;
+}
+
+// Custom color classes
+.text-primary {
+  color: #14b8a6 !important;
+}
+
+.text-accent {
+  color: #1e3a8a !important;
+}
+
+.bg-primary {
+  background-color: #14b8a6 !important;
+}
+
+.bg-accent {
+  background-color: #1e3a8a !important;
+}
+

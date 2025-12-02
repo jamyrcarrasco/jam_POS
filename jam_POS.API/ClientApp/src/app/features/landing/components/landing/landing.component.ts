@@ -76,7 +76,7 @@ export class LandingComponent {
       price: 'Gratis',
       period: '30 días de prueba',
       highlighted: false,
-      color: '#3B82F6',
+      color: '#0f766e',
       features: [
         '1 Usuario',
         '100 Productos',
@@ -90,7 +90,7 @@ export class LandingComponent {
       price: '$29',
       period: 'por mes',
       highlighted: true,
-      color: '#10B981',
+      color: '#14b8a6',
       features: [
         '5 Usuarios',
         'Productos ilimitados',
@@ -106,7 +106,7 @@ export class LandingComponent {
       price: '$79',
       period: 'por mes',
       highlighted: false,
-      color: '#8B5CF6',
+      color: '#1e3a8a',
       features: [
         'Usuarios ilimitados',
         'Todo lo de Profesional',

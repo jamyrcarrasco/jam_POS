@@ -3,16 +3,13 @@
 /* Material Icons Font */
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
-/* Angular Material Theme */
-@import '@angular/material/prebuilt-themes/indigo-pink.css';
-
 /* Provide sufficient contrast against white background */
 a {
-  color: #0366d6;
+  color: #0f766e;
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #14b8a6;
 }
 
 code {
@@ -21,8 +18,8 @@ code {
 
 .btn-primary {
   color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+  background-color: #14b8a6;
+  border-color: #0d9488;
 }
 
 /* Custom styles for productos component */
